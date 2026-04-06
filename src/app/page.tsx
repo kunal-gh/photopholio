@@ -13,6 +13,7 @@ import { usePhotographs, useTestimonials } from "@/lib/data-provider";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { PretextHeading } from "@/components/ui/pretext-heading";
 import React, { useMemo } from "react";
+import { useIsMobile } from "@/lib/hooks";
 
 const SECTIONS = [
   { slug: "weddings", title: "Weddings", description: "Capturing the magic of your special day with timeless elegance.", className: "md:col-span-10 md:row-span-2", sharp: true },
@@ -69,6 +70,7 @@ function TestimonialsSection() {
 
 export default function Home() {
   const { data: photographs } = usePhotographs();
+  const isMobile = useIsMobile();
   
   const heroImages = useMemo(() => {
     return photographs?.filter(p => p.featured).slice(0, 3) || [];
@@ -90,7 +92,7 @@ export default function Home() {
             <PretextHeading 
               text="Capturing Life's Fleeting Moments" 
               className="font-headline text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tighter text-white/90 drop-shadow-md leading-[1.1] max-w-6xl"
-              font="100px var(--font-headline)"
+              font={isMobile ? "48px var(--font-headline)" : "100px var(--font-headline)"}
             />
             <p className="mt-6 max-w-2xl mx-auto text-lg sm:text-xl md:text-2xl font-body text-white/80 drop-shadow-sm">
               Visual stories, captured with soul.

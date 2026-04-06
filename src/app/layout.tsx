@@ -7,8 +7,20 @@ import { Providers } from '@/components/providers';
 import { ImageKitProvider } from '@/components/imagekit-provider';
 
 export const metadata: Metadata = {
-  title: "Through Hardik's Eye",
-  description: 'A personal photography portfolio.',
+  title: "Through Hardik's Eye | Premier Photography",
+  description: 'Global photography studio specializing in weddings, fashion, and portraits.',
+  keywords: "photography, portfolio, wedding photography, fashion shoot, portraits, NYC photographer, Hardik studio",
+  openGraph: {
+    title: "Through Hardik's Eye",
+    description: "Visual stories, captured with soul.",
+    url: "https://civilisation.ai",
+    siteName: "Hardik Studio",
+    images: [{ url: "https://ik.imagekit.io/6b4gumpcc/hero-default.jpg", width: 1200, height: 630 }],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image", title: "Through Hardik's Eye", description: "Visual stories, captured with soul." },
+  alternates: { canonical: "https://civilisation.ai" }
 };
 
 export default function RootLayout({
