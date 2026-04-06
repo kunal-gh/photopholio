@@ -57,7 +57,8 @@ NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your_secret_key"
 ADMIN_USERNAME="admin"
 ADMIN_PASSWORD="secure_password"
-DATABASE_URL="file:./dev.db"
+POSTGRES_PRISMA_URL="postgres://default:..."
+POSTGRES_URL_NON_POOLING="postgres://default:..."
 ```
 
 **3. Database Hydration**
