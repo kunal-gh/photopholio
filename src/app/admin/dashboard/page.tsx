@@ -1,47 +1,48 @@
 "use client";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef, useCallback } from "react";
-import { Camera, Upload, Trash2, LogOut, Image as ImageIcon, Star, CheckCircle, XCircle, Calendar, FolderOpen, Plus, Pencil, Check, X, GripVertical, Archive } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import {
+  Camera, Upload, Trash2, LogOut, Image as ImageIcon, Star,
+  CheckCircle, XCircle, Calendar, FolderOpen, Plus, Pencil,
+  Check, X, GripVertical, Archive, Mail, MessageSquare
+} from "lucide-react";
 import { IKUpload } from "imagekitio-next";
 
 interface Photo {
-  id: string;
-  title: string;
-  description?: string;
-  section: string;
-  imageUrl: string;
-  imageKitFileId: string;
-  featured: boolean;
-  uploadedAt: string;
-  eventDate?: string;
-  tags?: string;
+  id: string; title: string; description?: string; section: string;
+  imageUrl: string; imageKitFileId: string; featured: boolean;
+  uploadedAt: string; eventDate?: string; tags?: string;
 }
-
 interface Section {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  order: number;
-  photoCount?: number;
+  id: string; name: string; slug: string; description?: string;
+  order: number; photoCount?: number;
+}
+interface Contact {
+  id: string; name: string; email: string; message: string;
+  createdAt: string; read: boolean;
+}
+interface Testimonial {
+  id: string; author: string; role: string; text: string;
+  avatar?: string; rating: number; createdAt: string;
 }
 
-type Tab = "gallery" | "sections";
+type Tab = "gallery" | "sections" | "messages" | "testimonials";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<Tab>("gallery");
+
+  // Gallery state
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
   const [activeSection, setActiveSection] = useState("all");
-  const [activeTab, setActiveTab] = useState<Tab>("gallery");
   const [uploading, setUploading] = useState(false);
-  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [form, setForm] = useState({ title: "", description: "", section: "", tags: "", eventDate: "", featured: false });
   const ikUploadRef = useRef<any>(null);
 
-  // Section editing state
+  // Section editing
   const [newSectionName, setNewSectionName] = useState("");
   const [newSectionDesc, setNewSectionDesc] = useState("");
   const [addingSection, setAddingSection] = useState(false);
@@ -49,121 +50,124 @@ export default function AdminDashboard() {
   const [editName, setEditName] = useState("");
   const [editDesc, setEditDesc] = useState("");
 
+  // Messages state
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [contactsLoading, setContactsLoading] = useState(false);
+
+  // Testimonials state
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(false);
+  const [testForm, setTestForm] = useState({ author: "", role: "", text: "", avatar: "", rating: 5 });
+  const [submittingTest, setSubmittingTest] = useState(false);
+
+  // Toast
+  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const showToast = (msg: string, type: "success" | "error") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3500);
+  };
+
   useEffect(() => { if (status === "unauthenticated") router.push("/admin/login"); }, [status, router]);
   useEffect(() => { fetchSections(); }, []);
   useEffect(() => { fetchPhotos(); }, [activeSection]);
+  useEffect(() => { if (activeTab === "messages") fetchContacts(); }, [activeTab]);
+  useEffect(() => { if (activeTab === "testimonials") fetchTestimonials(); }, [activeTab]);
 
   const fetchSections = async () => {
     const res = await fetch("/api/sections");
     const data = await res.json();
     if (Array.isArray(data)) {
       setSections(data);
-      // Set default form section to first available
       if (data.length > 0) setForm(f => ({ ...f, section: f.section || data[0].name }));
     }
   };
-
   const fetchPhotos = async () => {
     const url = activeSection === "all" ? "/api/photographs" : `/api/photographs?section=${encodeURIComponent(activeSection)}`;
     const res = await fetch(url);
     const data = await res.json();
     setPhotos(Array.isArray(data) ? data : []);
   };
-
-  const showToast = (msg: string, type: "success" | "error") => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3500);
+  const fetchContacts = async () => {
+    setContactsLoading(true);
+    try {
+      const res = await fetch("/api/contacts");
+      const data = await res.json();
+      setContacts(Array.isArray(data) ? data.sort((a: Contact, b: Contact) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : []);
+    } catch { showToast("Failed to load messages", "error"); }
+    finally { setContactsLoading(false); }
+  };
+  const fetchTestimonials = async () => {
+    setTestimonialsLoading(true);
+    try {
+      const res = await fetch("/api/testimonials");
+      const data = await res.json();
+      setTestimonials(Array.isArray(data) ? data : []);
+    } catch { showToast("Failed to load testimonials", "error"); }
+    finally { setTestimonialsLoading(false); }
   };
 
-  const getIKAuth = async () => {
-    const res = await fetch("/api/imagekit/auth");
-    return res.json();
-  };
+  const getIKAuth = async () => { const res = await fetch("/api/imagekit/auth"); return res.json(); };
 
   const onUploadSuccess = async (res: any) => {
     const response = await fetch("/api/photographs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: form.title, description: form.description, section: form.section,
-        imageUrl: res.url, imageKitFileId: res.fileId,
-        width: res.width, height: res.height,
-        featured: form.featured, tags: form.tags,
-        eventDate: form.eventDate || null,
-      }),
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: form.title, description: form.description, section: form.section, imageUrl: res.url, imageKitFileId: res.fileId, width: res.width, height: res.height, featured: form.featured, tags: form.tags, eventDate: form.eventDate || null }),
     });
-    if (response.ok) {
-      showToast("Photo uploaded successfully!", "success");
-      setForm(f => ({ ...f, title: "", description: "", tags: "", eventDate: "", featured: false }));
-      fetchPhotos();
-      fetchSections();
-    } else {
-      showToast("Upload failed. Try again.", "error");
-    }
+    if (response.ok) { showToast("Photo uploaded!", "success"); setForm(f => ({ ...f, title: "", description: "", tags: "", eventDate: "", featured: false })); fetchPhotos(); fetchSections(); }
+    else showToast("Upload failed.", "error");
     setUploading(false);
   };
 
   const deletePhoto = async (id: string) => {
     if (!confirm("Delete this photo permanently?")) return;
     await fetch(`/api/photographs/${id}`, { method: "DELETE" });
-    showToast("Photo deleted.", "success");
-    fetchPhotos(); fetchSections();
+    showToast("Photo deleted.", "success"); fetchPhotos(); fetchSections();
   };
-
   const toggleFeatured = async (photo: Photo) => {
-    await fetch(`/api/photographs/${photo.id}`, {
-      method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ featured: !photo.featured }),
-    });
+    await fetch(`/api/photographs/${photo.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ featured: !photo.featured }) });
     fetchPhotos();
   };
 
   const createSection = async () => {
     if (!newSectionName.trim()) return showToast("Enter a section name.", "error");
-    const res = await fetch("/api/sections", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newSectionName.trim(), description: newSectionDesc.trim() }),
-    });
-    if (res.ok) {
-      showToast("Section created!", "success");
-      setNewSectionName(""); setNewSectionDesc(""); setAddingSection(false);
-      fetchSections();
-    } else {
-      const err = await res.json();
-      showToast(err.error || "Failed to create section.", "error");
-    }
+    const res = await fetch("/api/sections", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: newSectionName.trim(), description: newSectionDesc.trim() }) });
+    if (res.ok) { showToast("Section created!", "success"); setNewSectionName(""); setNewSectionDesc(""); setAddingSection(false); fetchSections(); }
+    else { const err = await res.json(); showToast(err.error || "Failed.", "error"); }
   };
-
-  const startEdit = (section: Section) => {
-    setEditingId(section.id);
-    setEditName(section.name);
-    setEditDesc(section.description || "");
-  };
-
   const saveEdit = async (id: string) => {
-    const res = await fetch(`/api/sections/${id}`, {
-      method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: editName, description: editDesc }),
-    });
-    if (res.ok) {
-      showToast("Section renamed — photos updated!", "success");
-      setEditingId(null);
-      fetchSections(); fetchPhotos();
-    } else {
-      const err = await res.json();
-      showToast(err.error || "Failed to rename.", "error");
-    }
+    const res = await fetch(`/api/sections/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: editName, description: editDesc }) });
+    if (res.ok) { showToast("Section renamed!", "success"); setEditingId(null); fetchSections(); fetchPhotos(); }
+    else { const err = await res.json(); showToast(err.error || "Failed.", "error"); }
+  };
+  const deleteSection = async (section: Section) => {
+    if (!confirm(`Delete "${section.name}"? Its ${section.photoCount ?? 0} photos will be archived.`)) return;
+    const res = await fetch(`/api/sections/${section.id}`, { method: "DELETE" });
+    if (res.ok) { showToast(`"${section.name}" deleted. Photos archived.`, "success"); fetchSections(); fetchPhotos(); }
+    else showToast("Failed to delete.", "error");
   };
 
-  const deleteSection = async (section: Section) => {
-    if (!confirm(`Delete "${section.name}"? Its ${section.photoCount ?? 0} photos will be moved to Archive.`)) return;
-    const res = await fetch(`/api/sections/${section.id}`, { method: "DELETE" });
-    if (res.ok) {
-      showToast(`"${section.name}" deleted. Photos archived.`, "success");
-      fetchSections(); fetchPhotos();
-    } else {
-      showToast("Failed to delete section.", "error");
-    }
+  const deleteContact = async (id: string) => {
+    if (!confirm("Delete this message?")) return;
+    await fetch(`/api/contacts/${id}`, { method: "DELETE" });
+    showToast("Message deleted.", "success"); fetchContacts();
+  };
+  const markContactRead = async (id: string) => {
+    await fetch(`/api/contacts/${id}`, { method: "PATCH" });
+    fetchContacts();
+  };
+
+  const addTestimonial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmittingTest(true);
+    const res = await fetch("/api/testimonials", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(testForm) });
+    if (res.ok) { showToast("Testimonial added!", "success"); setTestForm({ author: "", role: "", text: "", avatar: "", rating: 5 }); fetchTestimonials(); }
+    else showToast("Failed to add testimonial.", "error");
+    setSubmittingTest(false);
+  };
+  const deleteTestimonial = async (id: string) => {
+    if (!confirm("Delete this testimonial?")) return;
+    await fetch(`/api/testimonials/${id}`, { method: "DELETE" });
+    showToast("Testimonial deleted.", "success"); fetchTestimonials();
   };
 
   if (status === "loading") return (
@@ -172,16 +176,24 @@ export default function AdminDashboard() {
     </div>
   );
 
+  const inputCls = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 transition-all";
   const displaySections = sections.filter(s => s.slug !== "archived");
   const archivedSection = sections.find(s => s.slug === "archived");
+  const unreadCount = contacts.filter(c => !c.read).length;
+
+  const tabs: { key: Tab; icon: React.ReactNode; label: string; badge?: number }[] = [
+    { key: "gallery", icon: <ImageIcon className="w-3.5 h-3.5" />, label: "Gallery" },
+    { key: "sections", icon: <FolderOpen className="w-3.5 h-3.5" />, label: "Sections" },
+    { key: "messages", icon: <Mail className="w-3.5 h-3.5" />, label: "Messages", badge: unreadCount },
+    { key: "testimonials", icon: <MessageSquare className="w-3.5 h-3.5" />, label: "Reviews" },
+  ];
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Toast */}
       {toast && (
-        <div className={`fixed top-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-2xl text-sm font-medium transition-all ${toast.type === "success" ? "bg-green-500/20 border border-green-500/30 text-green-300" : "bg-red-500/20 border border-red-500/30 text-red-300"}`}>
-          {toast.type === "success" ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-          {toast.msg}
+        <div className={`fixed top-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-2xl text-sm font-medium ${toast.type === "success" ? "bg-green-500/20 border border-green-500/30 text-green-300" : "bg-red-500/20 border border-red-500/30 text-red-300"}`}>
+          {toast.type === "success" ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />} {toast.msg}
         </div>
       )}
 
@@ -197,14 +209,16 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* Tab switcher */}
-          <div className="flex bg-white/5 rounded-lg p-1 border border-white/10">
-            <button onClick={() => setActiveTab("gallery")} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab === "gallery" ? "bg-white text-black" : "text-white/50 hover:text-white"}`}>
-              <ImageIcon className="w-3.5 h-3.5" /> Gallery
-            </button>
-            <button onClick={() => setActiveTab("sections")} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab === "sections" ? "bg-white text-black" : "text-white/50 hover:text-white"}`}>
-              <FolderOpen className="w-3.5 h-3.5" /> Sections
-            </button>
+          <div className="flex bg-white/5 rounded-lg p-1 border border-white/10 gap-0.5">
+            {tabs.map(tab => (
+              <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+                className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-white text-black" : "text-white/50 hover:text-white"}`}>
+                {tab.icon} {tab.label}
+                {tab.badge && tab.badge > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{tab.badge}</span>
+                )}
+              </button>
+            ))}
           </div>
           <button onClick={() => signOut({ callbackUrl: "/admin/login" })} className="flex items-center gap-2 text-xs text-white/40 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5">
             <LogOut className="w-3.5 h-3.5" /> Sign Out
@@ -215,101 +229,44 @@ export default function AdminDashboard() {
       {/* ── GALLERY TAB ── */}
       {activeTab === "gallery" && (
         <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-[380px,1fr] gap-8">
-          {/* Upload Panel */}
           <div className="space-y-4">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-              <div className="flex items-center gap-2 mb-5">
-                <Upload className="w-4 h-4 text-white/60" />
-                <h2 className="text-sm font-semibold text-white">Upload New Photo</h2>
-              </div>
-
+              <div className="flex items-center gap-2 mb-5"><Upload className="w-4 h-4 text-white/60" /><h2 className="text-sm font-semibold">Upload New Photo</h2></div>
               <div className="space-y-3">
-                <div>
-                  <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Title *</label>
-                  <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Photo title" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 transition-all" />
-                </div>
-
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Title *</label><input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Photo title" className={inputCls} /></div>
                 <div>
                   <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Section *</label>
-                  {sections.filter(s => s.slug !== "archived").length === 0 ? (
-                    <p className="text-xs text-white/30 italic">No sections yet. Create one in the Sections tab.</p>
-                  ) : (
-                    <select value={form.section} onChange={e => setForm(f => ({ ...f, section: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition-all">
-                      {sections.filter(s => s.slug !== "archived").map(s => <option key={s.id} value={s.name} className="bg-[#1a1a1a]">{s.name}</option>)}
-                    </select>
-                  )}
+                  {displaySections.length === 0
+                    ? <p className="text-xs text-white/30 italic">No sections yet. Create one in the Sections tab.</p>
+                    : <select value={form.section} onChange={e => setForm(f => ({ ...f, section: e.target.value }))} className={inputCls}>{displaySections.map(s => <option key={s.id} value={s.name} className="bg-[#1a1a1a]">{s.name}</option>)}</select>}
                 </div>
-
-                <div>
-                  <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Description</label>
-                  <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional description..." rows={2} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 transition-all resize-none" />
-                </div>
-
-                <div>
-                  <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Tags</label>
-                  <input value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} placeholder="nature, golden-hour, couple" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 transition-all" />
-                </div>
-
-                <div>
-                  <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Event Date</label>
-                  <input type="date" value={form.eventDate} onChange={e => setForm(f => ({ ...f, eventDate: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition-all [color-scheme:dark]" />
-                </div>
-
-                <label className="flex items-center gap-2.5 cursor-pointer">
-                  <input type="checkbox" checked={form.featured} onChange={e => setForm(f => ({ ...f, featured: e.target.checked }))} className="w-4 h-4 rounded border-white/20 bg-white/5 accent-white" />
-                  <span className="text-sm text-white/60">Mark as Featured</span>
-                </label>
-
-                <div className="hidden">
-                  <IKUpload ref={ikUploadRef} fileName={`photo-${Date.now()}`} folder="/studio"
-                    useUniqueFileName={true} onSuccess={onUploadSuccess}
-                    onError={() => { showToast("Upload error. Try again.", "error"); setUploading(false); }}
-                    onUploadStart={() => setUploading(true)} authenticator={getIKAuth} />
-                </div>
-
-                <button onClick={() => {
-                  if (!form.title) return showToast("Please enter a title.", "error");
-                  if (!form.section) return showToast("Please select a section.", "error");
-                  ikUploadRef.current?.click();
-                }} disabled={uploading} className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-all disabled:opacity-50">
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Description</label><textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional description..." rows={2} className={`${inputCls} resize-none`} /></div>
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Tags</label><input value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} placeholder="nature, golden-hour, couple" className={inputCls} /></div>
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Event Date</label><input type="date" value={form.eventDate} onChange={e => setForm(f => ({ ...f, eventDate: e.target.value }))} className={`${inputCls} [color-scheme:dark]`} /></div>
+                <label className="flex items-center gap-2.5 cursor-pointer"><input type="checkbox" checked={form.featured} onChange={e => setForm(f => ({ ...f, featured: e.target.checked }))} className="w-4 h-4 accent-white" /><span className="text-sm text-white/60">Mark as Featured</span></label>
+                <div className="hidden"><IKUpload ref={ikUploadRef} fileName={`photo-${Date.now()}`} folder="/studio" useUniqueFileName={true} onSuccess={onUploadSuccess} onError={() => { showToast("Upload error.", "error"); setUploading(false); }} onUploadStart={() => setUploading(true)} authenticator={getIKAuth} /></div>
+                <button onClick={() => { if (!form.title) return showToast("Enter a title.", "error"); if (!form.section) return showToast("Select a section.", "error"); ikUploadRef.current?.click(); }} disabled={uploading} className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-all disabled:opacity-50">
                   {uploading ? <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Uploading...</> : <><Upload className="w-4 h-4" /> Choose & Upload Photo</>}
                 </button>
               </div>
             </div>
-
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-white/40 space-y-1.5">
               <p className="font-medium text-white/60 mb-2">Upload Notes</p>
-              <p>• High-res images are preserved at full quality</p>
-              <p>• Images stored securely on ImageKit CDN</p>
-              <p>• Each photo is labelled by section automatically</p>
+              <p>• High-res images preserved at full quality</p><p>• Stored securely on ImageKit CDN</p><p>• Labelled by section automatically</p>
             </div>
           </div>
 
-          {/* Gallery Panel */}
           <div>
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-white/60" />
-                <h2 className="text-sm font-semibold text-white">Gallery</h2>
-                <span className="text-xs text-white/30 ml-1">({photos.length} photos)</span>
-              </div>
-            </div>
-
-            {/* Section Filter */}
+            <div className="flex items-center gap-2 mb-5"><ImageIcon className="w-4 h-4 text-white/60" /><h2 className="text-sm font-semibold">Gallery</h2><span className="text-xs text-white/30">({photos.length} photos)</span></div>
             <div className="flex flex-wrap gap-2 mb-5">
               {["all", ...sections.map(s => s.name)].map(s => (
                 <button key={s} onClick={() => setActiveSection(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 ${activeSection === s ? "bg-white text-black" : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/10"}`}>
-                  {s === "archived" && <Archive className="w-3 h-3" />}
-                  {s === "all" ? "All" : s}
+                  {s === "archived" && <Archive className="w-3 h-3" />}{s === "all" ? "All" : s}
                 </button>
               ))}
             </div>
-
             {photos.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-60 text-white/20">
-                <Camera className="w-12 h-12 mb-3" />
-                <p className="text-sm">No photos yet. Upload your first one!</p>
-              </div>
+              <div className="flex flex-col items-center justify-center h-60 text-white/20"><Camera className="w-12 h-12 mb-3" /><p className="text-sm">No photos yet.</p></div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
                 {photos.map(photo => (
@@ -321,16 +278,9 @@ export default function AdminDashboard() {
                           <span className="text-xs bg-white/20 backdrop-blur-sm px-2 py-1 rounded-lg w-fit">{photo.section}</span>
                           {photo.uploadedAt && <span className="text-[10px] text-white/50 flex items-center gap-1"><Calendar className="w-2.5 h-2.5" />{new Date(photo.uploadedAt).toLocaleDateString()}</span>}
                         </div>
-                        <button onClick={() => toggleFeatured(photo)} className={`p-1 rounded-lg ${photo.featured ? "text-yellow-400" : "text-white/30 hover:text-yellow-400"}`} title="Toggle featured">
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                        </button>
+                        <button onClick={() => toggleFeatured(photo)} className={`p-1 rounded-lg ${photo.featured ? "text-yellow-400" : "text-white/30 hover:text-yellow-400"}`}><Star className="w-3.5 h-3.5 fill-current" /></button>
                       </div>
-                      <div>
-                        <p className="text-xs font-medium text-white truncate">{photo.title}</p>
-                        <button onClick={() => deletePhoto(photo.id)} className="mt-1 flex items-center gap-1 text-red-400 text-xs hover:text-red-300 transition-colors">
-                          <Trash2 className="w-3 h-3" /> Delete
-                        </button>
-                      </div>
+                      <div><p className="text-xs font-medium text-white truncate">{photo.title}</p><button onClick={() => deletePhoto(photo.id)} className="mt-1 flex items-center gap-1 text-red-400 text-xs hover:text-red-300"><Trash2 className="w-3 h-3" /> Delete</button></div>
                     </div>
                     {photo.featured && <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-yellow-400" />}
                   </div>
@@ -345,53 +295,33 @@ export default function AdminDashboard() {
       {activeTab === "sections" && (
         <div className="max-w-4xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-white">Manage Sections</h2>
-              <p className="text-xs text-white/40 mt-1">Sections appear as cards on the public portfolio page.</p>
-            </div>
-            <button onClick={() => setAddingSection(true)} className="flex items-center gap-2 bg-white text-black text-xs font-semibold px-4 py-2 rounded-xl hover:bg-white/90 transition-all">
-              <Plus className="w-3.5 h-3.5" /> Add Section
-            </button>
+            <div><h2 className="text-lg font-semibold">Manage Sections</h2><p className="text-xs text-white/40 mt-1">Sections appear as cards on the public portfolio page.</p></div>
+            <button onClick={() => setAddingSection(true)} className="flex items-center gap-2 bg-white text-black text-xs font-semibold px-4 py-2 rounded-xl hover:bg-white/90 transition-all"><Plus className="w-3.5 h-3.5" /> Add Section</button>
           </div>
-
-          {/* Add Section Form */}
           {addingSection && (
             <div className="bg-white/5 border border-white/20 rounded-2xl p-4 mb-4 space-y-3">
               <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">New Section</p>
-              <input autoFocus value={newSectionName} onChange={e => setNewSectionName(e.target.value)} placeholder="Section name (e.g. Architecture)" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 transition-all" />
-              <input value={newSectionDesc} onChange={e => setNewSectionDesc(e.target.value)} placeholder="Short description (optional)" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 transition-all" />
+              <input autoFocus value={newSectionName} onChange={e => setNewSectionName(e.target.value)} placeholder="Section name (e.g. Architecture)" className={inputCls} />
+              <input value={newSectionDesc} onChange={e => setNewSectionDesc(e.target.value)} placeholder="Short description (optional)" className={inputCls} />
               <div className="flex gap-2">
-                <button onClick={createSection} className="flex items-center gap-1.5 bg-white text-black text-xs font-semibold px-4 py-2 rounded-xl hover:bg-white/90 transition-all">
-                  <Check className="w-3.5 h-3.5" /> Create
-                </button>
-                <button onClick={() => { setAddingSection(false); setNewSectionName(""); setNewSectionDesc(""); }} className="flex items-center gap-1.5 bg-white/10 text-white/60 text-xs font-medium px-4 py-2 rounded-xl hover:bg-white/20 transition-all">
-                  <X className="w-3.5 h-3.5" /> Cancel
-                </button>
+                <button onClick={createSection} className="flex items-center gap-1.5 bg-white text-black text-xs font-semibold px-4 py-2 rounded-xl hover:bg-white/90 transition-all"><Check className="w-3.5 h-3.5" /> Create</button>
+                <button onClick={() => { setAddingSection(false); setNewSectionName(""); setNewSectionDesc(""); }} className="flex items-center gap-1.5 bg-white/10 text-white/60 text-xs px-4 py-2 rounded-xl hover:bg-white/20"><X className="w-3.5 h-3.5" /> Cancel</button>
               </div>
             </div>
           )}
-
-          {/* Sections List */}
           {displaySections.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-60 text-white/20">
-              <FolderOpen className="w-12 h-12 mb-3" />
-              <p className="text-sm">No sections yet. Add your first one!</p>
-            </div>
+            <div className="flex flex-col items-center justify-center h-60 text-white/20"><FolderOpen className="w-12 h-12 mb-3" /><p className="text-sm">No sections yet.</p></div>
           ) : (
             <div className="space-y-2">
               {displaySections.map(section => (
                 <div key={section.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 group">
                   {editingId === section.id ? (
                     <div className="space-y-2">
-                      <input autoFocus value={editName} onChange={e => setEditName(e.target.value)} className="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-white/40 transition-all" />
-                      <input value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="Description (optional)" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 transition-all" />
+                      <input autoFocus value={editName} onChange={e => setEditName(e.target.value)} className={inputCls} />
+                      <input value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="Description (optional)" className={inputCls} />
                       <div className="flex gap-2">
-                        <button onClick={() => saveEdit(section.id)} className="flex items-center gap-1.5 bg-white text-black text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-white/90 transition-all">
-                          <Check className="w-3.5 h-3.5" /> Save
-                        </button>
-                        <button onClick={() => setEditingId(null)} className="flex items-center gap-1.5 bg-white/10 text-white/60 text-xs px-3 py-1.5 rounded-lg hover:bg-white/20 transition-all">
-                          <X className="w-3.5 h-3.5" /> Cancel
-                        </button>
+                        <button onClick={() => saveEdit(section.id)} className="flex items-center gap-1.5 bg-white text-black text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-white/90"><Check className="w-3.5 h-3.5" /> Save</button>
+                        <button onClick={() => setEditingId(null)} className="flex items-center gap-1.5 bg-white/10 text-white/60 text-xs px-3 py-1.5 rounded-lg hover:bg-white/20"><X className="w-3.5 h-3.5" /> Cancel</button>
                       </div>
                     </div>
                   ) : (
@@ -399,18 +329,14 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-3">
                         <GripVertical className="w-4 h-4 text-white/20" />
                         <div>
-                          <p className="text-sm font-medium text-white">{section.name}</p>
+                          <p className="text-sm font-medium">{section.name}</p>
                           {section.description && <p className="text-xs text-white/40 mt-0.5">{section.description}</p>}
                           <p className="text-xs text-white/25 mt-0.5">{section.photoCount ?? 0} photo{section.photoCount !== 1 ? "s" : ""}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => startEdit(section)} className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all" title="Rename">
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={() => deleteSection(section)} className="p-2 rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all" title="Delete (photos will be archived)">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <button onClick={() => { setEditingId(section.id); setEditName(section.name); setEditDesc(section.description || ""); }} className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all"><Pencil className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => deleteSection(section)} className="p-2 rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all"><Trash2 className="w-3.5 h-3.5" /></button>
                       </div>
                     </div>
                   )}
@@ -418,17 +344,112 @@ export default function AdminDashboard() {
               ))}
             </div>
           )}
-
-          {/* Archived section indicator */}
           {archivedSection && archivedSection.photoCount && archivedSection.photoCount > 0 && (
             <div className="mt-6 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-4 flex items-center gap-3">
               <Archive className="w-5 h-5 text-yellow-400/60 flex-shrink-0" />
-              <div>
-                <p className="text-sm text-yellow-300/80 font-medium">Archive</p>
-                <p className="text-xs text-yellow-400/50">{archivedSection.photoCount} photo{archivedSection.photoCount !== 1 ? "s" : ""} from deleted sections. View them in the Gallery tab.</p>
-              </div>
+              <div><p className="text-sm text-yellow-300/80 font-medium">Archive</p><p className="text-xs text-yellow-400/50">{archivedSection.photoCount} photo{archivedSection.photoCount !== 1 ? "s" : ""} from deleted sections. View in Gallery tab.</p></div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── MESSAGES TAB ── */}
+      {activeTab === "messages" && (
+        <div className="max-w-4xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-semibold flex items-center gap-2"><Mail className="w-5 h-5 text-white/60" /> Contact Messages</h2>
+              <p className="text-xs text-white/40 mt-1">{contacts.length} total · {unreadCount} unread</p>
+            </div>
+          </div>
+          {contactsLoading ? (
+            <div className="flex items-center justify-center h-60"><div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>
+          ) : contacts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-60 text-white/20"><Mail className="w-12 h-12 mb-3" /><p className="text-sm">No messages yet.</p></div>
+          ) : (
+            <div className="space-y-3">
+              {contacts.map(contact => (
+                <div key={contact.id} className={`bg-white/5 border rounded-2xl p-5 transition-all ${!contact.read ? "border-white/30" : "border-white/10"}`}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-grow space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-sm">{contact.name}</p>
+                        {!contact.read && <span className="text-[10px] bg-white text-black px-2 py-0.5 rounded-full font-semibold">NEW</span>}
+                      </div>
+                      <a href={`mailto:${contact.email}`} className="text-xs text-white/50 hover:text-white/80 transition-colors flex items-center gap-1"><Mail className="w-3 h-3" />{contact.email}</a>
+                      <p className="text-sm text-white/80 leading-relaxed">{contact.message}</p>
+                      <p className="text-xs text-white/30">{new Date(contact.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                    </div>
+                    <div className="flex flex-col gap-2 flex-shrink-0">
+                      {!contact.read && (
+                        <button onClick={() => markContactRead(contact.id)} className="flex items-center gap-1 text-xs text-white/40 hover:text-green-400 transition-colors px-2 py-1 rounded-lg hover:bg-white/5"><CheckCircle className="w-3.5 h-3.5" /> Mark Read</button>
+                      )}
+                      <button onClick={() => deleteContact(contact.id)} className="flex items-center gap-1 text-xs text-red-400/60 hover:text-red-400 transition-colors px-2 py-1 rounded-lg hover:bg-red-500/10"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TESTIMONIALS TAB ── */}
+      {activeTab === "testimonials" && (
+        <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-[400px,1fr] gap-8">
+          {/* Add Form */}
+          <div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-5"><Plus className="w-4 h-4 text-white/60" /><h2 className="text-sm font-semibold">Add New Review</h2></div>
+              <form onSubmit={addTestimonial} className="space-y-3">
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Client Name *</label><input required value={testForm.author} onChange={e => setTestForm(f => ({ ...f, author: e.target.value }))} placeholder="Anjali Mehta" className={inputCls} /></div>
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Role / Title *</label><input required value={testForm.role} onChange={e => setTestForm(f => ({ ...f, role: e.target.value }))} placeholder="Wedding Client" className={inputCls} /></div>
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Testimonial *</label><textarea required value={testForm.text} onChange={e => setTestForm(f => ({ ...f, text: e.target.value }))} placeholder="The photographs were stunning..." rows={3} className={`${inputCls} resize-none`} /></div>
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Avatar URL</label><input value={testForm.avatar} onChange={e => setTestForm(f => ({ ...f, avatar: e.target.value }))} placeholder="https://i.pravatar.cc/150?img=1" className={inputCls} /></div>
+                <div>
+                  <label className="block text-xs text-white/40 mb-2 uppercase tracking-wider">Rating</label>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <button key={star} type="button" onClick={() => setTestForm(f => ({ ...f, rating: star }))} className="focus:outline-none">
+                        <Star className={`w-6 h-6 transition-colors ${star <= testForm.rating ? "fill-yellow-400 text-yellow-400" : "text-white/20"}`} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button type="submit" disabled={submittingTest} className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-all disabled:opacity-50">
+                  {submittingTest ? <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Adding...</> : <><Plus className="w-4 h-4" /> Add Testimonial</>}
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* Testimonials List */}
+          <div>
+            <div className="flex items-center gap-2 mb-5"><MessageSquare className="w-4 h-4 text-white/60" /><h2 className="text-sm font-semibold">All Reviews</h2><span className="text-xs text-white/30">({testimonials.length})</span></div>
+            {testimonialsLoading ? (
+              <div className="flex items-center justify-center h-60"><div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>
+            ) : testimonials.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-60 text-white/20"><MessageSquare className="w-12 h-12 mb-3" /><p className="text-sm">No reviews yet. Add your first one!</p></div>
+            ) : (
+              <div className="space-y-3">
+                {testimonials.map(t => (
+                  <div key={t.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-start gap-4 group">
+                    {t.avatar && <img src={t.avatar} alt={t.author} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />}
+                    {!t.avatar && <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold flex-shrink-0">{t.author[0]}</div>}
+                    <div className="flex-grow">
+                      <p className="text-sm font-semibold">{t.author}</p>
+                      <p className="text-xs text-white/40">{t.role}</p>
+                      <p className="text-sm text-white/70 mt-1.5 italic">"{t.text}"</p>
+                      <div className="flex items-center gap-0.5 mt-2">
+                        {Array.from({ length: t.rating }).map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />)}
+                      </div>
+                    </div>
+                    <button onClick={() => deleteTestimonial(t.id)} className="p-2 rounded-lg text-red-400/40 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100 flex-shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
