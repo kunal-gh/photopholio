@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -19,10 +18,13 @@ const navLinks = [
 export function Header() {
   const [activeLink, setActiveLink] = useState("/#home");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const isClicking = useRef(false);
 
   useEffect(() => {
     const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+
       if (isClicking.current) return;
       
       const sections = navLinks.map(link => {
@@ -38,6 +40,9 @@ export function Header() {
         }
       }
     };
+
+    // Initial check
+    handleScroll();
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -62,7 +67,7 @@ export function Header() {
           "relative py-2 text-sm font-medium transition-colors duration-300",
           isActive
             ? "text-primary"
-            : "text-muted-foreground hover:text-primary",
+            : "text-foreground/80 hover:text-foreground",
           "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-primary after:transition-transform after:duration-300 after:origin-left",
           isActive ? "after:scale-x-100" : "after:scale-x-0"
         )}
@@ -74,13 +79,20 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg">
+    <header 
+      className={cn(
+        "fixed top-0 z-50 w-full transition-all duration-300",
+        isScrolled 
+          ? "border-b border-border/60 bg-background/80 backdrop-blur-lg shadow-sm" 
+          : "border-transparent bg-transparent py-2"
+      )}
+    >
       <div className="container flex h-20 items-center justify-between px-4 sm:px-4">
         <Link href="/#home" onClick={() => handleLinkClick('/#home')} className="flex items-baseline gap-2 md:gap-3">
             <span className="font-bold sm:inline-block font-headline text-3xl md:text-5xl tracking-[0.2em]">
                 THE
             </span>
-            <span className="hidden sm:inline-block text-xs md:text-sm font-body text-muted-foreground tracking-widest uppercase whitespace-nowrap">
+            <span className="hidden sm:inline-block text-xs md:text-sm font-body tracking-widest uppercase whitespace-nowrap opacity-80">
                 Through Hardik's Eye
             </span>
         </Link>
@@ -93,13 +105,13 @@ export function Header() {
           </nav>
           <div className="flex items-center gap-4">
             <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-              <Twitter className="h-5 w-5 text-muted-foreground transition-colors hover:text-primary" />
+              <Twitter className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
             </Link>
             <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-              <Facebook className="h-5 w-5 text-muted-foreground transition-colors hover:text-primary" />
+              <Facebook className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
             </Link>
             <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-              <Instagram className="h-5 w-5 text-muted-foreground transition-colors hover:text-primary" />
+              <Instagram className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
             </Link>
           </div>
         </div>
