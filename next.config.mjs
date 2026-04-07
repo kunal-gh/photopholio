@@ -11,6 +11,15 @@ const nextConfig = {
       { protocol: "https", hostname: "i.pravatar.cc", port: "", pathname: "/**" },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/admin',
+        destination: '/admin/dashboard',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
