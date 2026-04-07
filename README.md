@@ -1,74 +1,79 @@
-<div align="center">
-  <h1>📸 Civilisation AI: Photography Portfolio</h1>
-  <p><i>A hyper-dynamic, high-performance portfolio application.</i></p>
+# Photopholio - Hardik's Eye 📸
 
-  <p>
-    <a href="#architecture">Architecture</a> •
-    <a href="#features">Features</a> •
-    <a href="#technologies-used">Technologies Used</a> •
-    <a href="#local-setup">Local Setup</a>
-  </p>
-</div>
+[![Vercel Deploy](https://img.shields.io/badge/Deployed-Vercel-black?logo=vercel)](https://photopholio-omega.vercel.app/)
 
-![Hero Section](https://raw.githubusercontent.com/kunal-gh/photography-portfolio-showcase/main/docs/hero.webp)
+Welcome to **Photopholio**, a premium, cinematic web experience built for modern photography portfolios. Designed for visual impact, blazing-fast performance, and secure admin management.
 
-## Architecture
+**Live Demo:** [https://photopholio-omega.vercel.app/](https://photopholio-omega.vercel.app/)
 
-This application employs a modern JAMStack approach tailored for high-fidelity media delivery and stringent private administration. 
+## ✨ Key Features
 
-```mermaid
-graph TD
-    Client[Web Client] --> Next[Next.js 14 App Router]
-    Next --> |Server Side Rendering| DB[(Prisma/SQLite)]
-    Next --> |Client Side Auth| NextAuth[NextAuth JWT]
-    NextAuth --> Admin[Secured Admin Portal]
-    Admin --> |Edge Upload| ImageKit[ImageKit CDN]
-    ImageKit --> |Render Optimized| Client
-```
+-   **Cinematic Typography**: Utilizes `@chenglou/pretext` for advanced text mechanics, ensuring headers perfectly shrink-wrap and wrap without layout shift across all devices.
+-   **Dynamic Admin Dashboard**: Secure authentication via `next-auth` to a private portal where you can upload, categorize, and manage portfolio photos.
+-   **Edge Data**: Data driven by Prisma ORM backed by a powerful Vercel Postgres serverless database.
+-   **Optimized Imagery**: Direct integration with `ImageKit.io` ensures perfect image delivery with automatic resizing, caching, and CDN distribution.
+-   **Fully Responsive**: Perfectly orchestrated layouts leveraging masonry-style flexible grids that respect portrait vs landscape aspects natively on Mobile devices.
+-   **E2E Authenticated Testing**: Built-in `Playwright` End-to-End tests ensuring the admin dashboard remains fortified and correctly redirects unauthenticated prying eyes.
+-   **SEO Native**: Automatically configured sitemaps, OpenGraph image embeds, and metadata schema routing.
 
-## Features
-- **Dynamic Layout Algorithms**: Utilizes `@chenglou/pretext` for pixel-perfect, intelligent typography wrapping across screens, avoiding standard DOM layout issues.
-- **Secured Content Pipeline**: An exclusive authenticated portal ensures only the designated administrator can upload, tag, and modify feature sections via `next-auth`.
-- **CDN-Backed Media**: Images drop perfectly into ImageKit's dedicated global network, ensuring lossy vs lossless image transitions happen transparently. 
-- **Type-Safe ORM Logging**: A rigid database mapping managed by `Prisma` to categorize content dynamically based on visual themes (e.g., Weddings, Portraits, Fashion).
+## 🛠 Tech Stack
 
-## Technologies Used
-- **Framework:** `Next.js 14` (App Router) with React 18
-- **UI:** `TailwindCSS` with `lucide-react` icons and custom `pretext` components. 
-- **Database & Auth:** `Prisma ORM`, `SQLite`, `NextAuth.js`.
-- **Media Optimization:** `ImageKit.io` Edge CDN.
+-   **Framework**: Next.js 14 (App Router)
+-   **Styling**: TailwindCSS, `lucide-react`, Shadcn UI
+-   **Database**: PostgreSQL via Prisma ORM
+-   **Image Hosting**: ImageKit.io
+-   **Authentication**: NextAuth.js
+-   **Testing**: Playwright End-to-End
+-   **Deployment**: Vercel Serverless Edge
 
-## Local Setup
+## 🚀 Getting Started Locally
 
-**1. Clone Repo & Install Packages**
+You will need a Vercel Postgres instance or local PostgreSQL string to run this platform locally.
+
+**1. Clone the Source**
 ```bash
-git clone https://github.com/kunal-gh/photography-portfolio-showcase.git
-cd photography-portfolio-showcase
+git clone https://github.com/kunal-gh/photopholio.git
+cd photopholio
 npm install
 ```
 
-**2. Configure Environment Files**
-You must create an `.env.local` file with the exact configuration properties required. 
-```ini
-NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/<your_id>"
-NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY="public_..."
-IMAGEKIT_PRIVATE_KEY="private_..."
-NEXTAUTH_URL="http://localhost:3000"
+**2. Configure Environment Variables**
+Create a `.env.local` file with the following setup (fill in your secrets!):
+```env
+# NextAuth
 NEXTAUTH_SECRET="your_secret_key"
 ADMIN_USERNAME="admin"
 ADMIN_PASSWORD="secure_password"
-POSTGRES_PRISMA_URL="postgres://default:..."
-POSTGRES_URL_NON_POOLING="postgres://default:..."
+
+# ImageKit
+NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/your_id/"
+NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY="public_..."
+IMAGEKIT_PRIVATE_KEY="private_..."
+
+# Prisma Postgres (Vercel Integration Format)
+POSTGRES_PRISMA_URL_PRISMA_DATABASE_URL="postgres://..."
+POSTGRES_PRISMA_URL_POSTGRES_URL="postgres://..."
 ```
 
-**3. Database Hydration**
+**3. Initialize Database**
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-**4. Start Edge Server**
+**4. Run Development Server**
 ```bash
 npm run dev
 ```
-Navigate to `http://localhost:3000/admin/login` to manage content, or `http://localhost:3000/` to test dynamic capabilities.
+
+Navigate to `http://localhost:3000` to view the site. To test the secure photo-management flow navigate to `/admin/login`.
+
+## 🧪 Running Tests
+
+To verify that the administrative access controls are functioning successfully, run the automated Playwright E2E suite:
+```bash
+npx playwright test
+```
+
+## 📸 Developed for Hardik Studio
+This codebase serves as a Next-Generation template specifically tailored to empower creative professionals with true digital asset control.
