@@ -87,9 +87,9 @@ export function Header() {
           : "border-transparent bg-transparent py-2"
       )}
     >
-      <div className="container flex h-20 items-center justify-between px-4 sm:px-4">
+      <div className="container flex h-14 items-center justify-between px-4 sm:px-4">
         <Link href="/#home" onClick={() => handleLinkClick('/#home')} className="flex items-baseline gap-2 md:gap-3">
-            <span className="font-bold sm:inline-block font-headline text-3xl md:text-5xl tracking-[0.2em]">
+            <span className="font-bold sm:inline-block font-headline text-2xl md:text-4xl tracking-[0.2em]">
                 THE
             </span>
             <span className="hidden sm:inline-block text-xs md:text-sm font-body tracking-widest uppercase whitespace-nowrap opacity-80">
