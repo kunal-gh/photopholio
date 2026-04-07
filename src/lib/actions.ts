@@ -2,7 +2,7 @@
 "use server";
 
 import { z } from "zod";
-import { addContact } from "./db";
+import { prisma } from "./prisma";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -23,7 +23,9 @@ export async function submitContactForm(formData: FormData) {
 
   try {
     // Save to database
-    addContact(parsed.data);
+    await prisma.contact.create({
+      data: parsed.data
+    });
     
     return {
       success: true,
