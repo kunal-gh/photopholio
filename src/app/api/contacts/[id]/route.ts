@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteContact, markContactAsRead } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const success = markContactAsRead(params.id);
-    if (!success) {
-      return NextResponse.json({ error: 'Contact not found' }, { status: 404 });
-    }
-    return NextResponse.json({ success: true });
+    const updatedContact = await prisma.contact.update({
+      where: { id: params.id },
+      data: { read: true },
+    });
+    return NextResponse.json({ success: true, contact: updatedContact });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update contact' }, { status: 500 });
   }
@@ -21,10 +21,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const deleted = deleteContact(params.id);
-    if (!deleted) {
-      return NextResponse.json({ error: 'Contact not found' }, { status: 404 });
-    }
+    await prisma.contact.delete({
+      where: { id: params.id },
+    });
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete contact' }, { status: 500 });
