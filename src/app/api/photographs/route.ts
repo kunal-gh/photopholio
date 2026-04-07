@@ -14,14 +14,25 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { title, description, section, imageUrl, imageKitFileId, width, height, featured, tags } = body;
+  const { title, description, section, imageUrl, imageKitFileId, width, height, featured, tags, eventDate } = body;
   
   if (!title || !section || !imageUrl || !imageKitFileId) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
   
   const photo = await prisma.photograph.create({
-    data: { title, description, section, imageUrl, imageKitFileId, width, height, featured: featured ?? false, tags },
+    data: { 
+      title, 
+      description, 
+      section, 
+      imageUrl, 
+      imageKitFileId, 
+      width, 
+      height, 
+      featured: featured ?? false, 
+      tags,
+      eventDate: eventDate ? new Date(eventDate) : null
+    },
   });
   return NextResponse.json(photo, { status: 201 });
 }

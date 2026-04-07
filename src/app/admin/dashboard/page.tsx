@@ -2,7 +2,7 @@
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import { Camera, Upload, Trash2, LogOut, Image as ImageIcon, Star, MessageSquare, CheckCircle, XCircle, X } from "lucide-react";
+import { Camera, Upload, Trash2, LogOut, Image as ImageIcon, Star, MessageSquare, CheckCircle, XCircle, X, Calendar } from "lucide-react";
 import { IKUpload } from "imagekitio-next";
 
 const SECTIONS = ["Weddings", "Portraits", "Live Events", "Thats AI", "Fashion", "Street"];
@@ -16,6 +16,7 @@ interface Photo {
   imageKitFileId: string;
   featured: boolean;
   uploadedAt: string;
+  eventDate?: string;
   tags?: string;
 }
 
@@ -26,7 +27,7 @@ export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState("all");
   const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", section: SECTIONS[0], tags: "", featured: false });
+  const [form, setForm] = useState({ title: "", description: "", section: SECTIONS[0], tags: "", eventDate: "", featured: false });
   const ikUploadRef = useRef<any>(null);
 
   useEffect(() => {
@@ -66,11 +67,12 @@ export default function AdminDashboard() {
         height: res.height,
         featured: form.featured,
         tags: form.tags,
+        eventDate: form.eventDate || null,
       }),
     });
     if (response.ok) {
       showToast("Photo uploaded successfully!", "success");
-      setForm({ title: "", description: "", section: SECTIONS[0], tags: "", featured: false });
+      setForm({ title: "", description: "", section: SECTIONS[0], tags: "", eventDate: "", featured: false });
       fetchPhotos();
     } else {
       showToast("Upload failed. Try again.", "error");
@@ -159,6 +161,11 @@ export default function AdminDashboard() {
                 <input value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} placeholder="nature, golden-hour, couple" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/30 transition-all" />
               </div>
 
+              <div>
+                <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Event Date</label>
+                <input type="date" value={form.eventDate} onChange={e => setForm(f => ({ ...f, eventDate: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/30 transition-all [color-scheme:dark]" />
+              </div>
+
               <label className="flex items-center gap-2.5 cursor-pointer">
                 <input type="checkbox" checked={form.featured} onChange={e => setForm(f => ({ ...f, featured: e.target.checked }))} className="w-4 h-4 rounded border-white/20 bg-white/5 accent-white" />
                 <span className="text-sm text-white/60">Mark as Featured</span>
@@ -230,7 +237,10 @@ export default function AdminDashboard() {
                   <img src={photo.imageUrl} alt={photo.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-3">
                     <div className="flex justify-between">
-                      <span className="text-xs bg-white/20 backdrop-blur-sm px-2 py-1 rounded-lg">{photo.section}</span>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs bg-white/20 backdrop-blur-sm px-2 py-1 rounded-lg w-fit">{photo.section}</span>
+                        {photo.uploadedAt && <span className="text-[10px] text-white/50 flex items-center gap-1"><Calendar className="w-2.5 h-2.5" />{new Date(photo.uploadedAt).toLocaleDateString()}</span>}
+                      </div>
                       <button onClick={() => toggleFeatured(photo)} className={`p-1 rounded-lg ${photo.featured ? "text-yellow-400" : "text-white/30 hover:text-yellow-400"}`} title="Toggle featured">
                         <Star className="w-3.5 h-3.5 fill-current" />
                       </button>
