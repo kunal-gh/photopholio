@@ -1,41 +1,92 @@
-# Photopholio - Web Engineering Showcase 📸
+# Photopholio — Web Engineering Showcase 📸
 
-[![Vercel Deploy](https://img.shields.io/badge/Live_Environment-Vercel-black?logo=vercel)](https://photopholio-omega.vercel.app/)
+[![Live](https://img.shields.io/badge/Live_on-Vercel-black?logo=vercel&style=for-the-badge)](https://photopholio-omega.vercel.app/)
+[![Next.js](https://img.shields.io/badge/Next.js_14-black?logo=next.js&style=for-the-badge)](https://nextjs.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-2D3748?logo=prisma&style=for-the-badge)](https://prisma.io/)
+[![Vercel Postgres](https://img.shields.io/badge/Vercel_Postgres-000?logo=vercel&style=for-the-badge)](https://vercel.com/storage/postgres)
 
-Welcome to **Photopholio**, a highly-optimized, cinematic web application specifically architected to demonstrate modern UI engineering and the absolute limits of Next.js frontend performance. 
+> A production-grade photography portfolio engineered to demonstrate elite front-end mechanics, serverless data pipelines, fluid typography, and dynamic CMS architecture — all live at [photopholio-omega.vercel.app](https://photopholio-omega.vercel.app/).
 
-This repository serves strictly as a portfolio showcasing elite front-end mechanics, typography innovation, and data-driven architectures.
+---
 
-## ✨ The Engineering Vision
+## 📸 Live Screenshots
 
-Modern web development often suffers from sluggish DOM re-flows, layout shifts (CLS), and rigid, uninspired aesthetics. This application was built to challenge those norms by operating at the intersection of complex mathematics, serverless data pipelines, and fluid responsive design.
+### Homepage — Cinematic Hero
+![Homepage Hero](./docs/screenshots/homepage-hero.png)
 
-### The Problem with Traditional Web Typography
-Normally, making massive, cinematic text scale perfectly across a 4K TV down to an iPhone Mini requires a painful combination of CSS media queries (`@media`), viewport units (`vw`), and JavaScript DOM measurements (`getBoundingClientRect`). Traditional JavaScript approaches inevitably trigger **Layout Reflows**—the absolute most expensive performance bottleneck a browser can experience. 
+### Portfolio Grid — Adaptive Editorial Layout
+![Portfolio Grid](./docs/screenshots/portfolio-grid.png)
 
-When text size changes, the browser pauses rendering to recalculate where every single pixel on the page should go, leading to stuttering animations and awkward word-breaks (also known as "widows" and "orphans" in typography).
+### Footer
+![Homepage Footer](./docs/screenshots/homepage-footer.png)
 
-### 🚀 The Solution: `@chenglou/pretext`
-To achieve fluid, poster-perfect typography that doesn't sacrifice 60FPS performance, this application completely bypasses the DOM for layout calculation. 
+### Admin Portal — Secure Dark Mode Dashboard
+![Admin Login](./docs/screenshots/admin-login.png)
 
-Using `@chenglou/pretext`, this frontend leverages the browser's own hidden Canvas Font Engine as a ground truth to mathematically measure textual bounds *in memory*. 
+---
 
-**How this elevates the UI:**
-1. **Perfect Shrink-Wrap:** The headline component (`PretextHeading`) calculates the exact pixel constraint for text, wrapping characters smoothly without ever awkwardly breaking words.
-2. **Zero DOM Thrashing:** Because the layout math happens via memory-based canvas arithmetic, the application calculates the text grid *before* it touches the DOM. This results in zero layout shift.
-3. **Staggered Orchestration:** Because the library returns an iterator of perfectly measured typography lines, we can extract them into arrays and stagger CSS/Framer motion animations sequentially across them—a technique largely impossible with static CSS `div` structures!
+## ✨ Engineering Vision
+
+Modern web applications suffer from sluggish DOM re-flows, layout shifts (CLS), and rigid, uninspired aesthetics. This application was built to challenge those norms — operating at the intersection of complex typography mathematics, serverless data pipelines, and fluid responsive design.
+
+---
+
+## 🚀 Typography Innovation — `@chenglou/pretext`
+
+Traditional responsive typography forces developers to choose between brittle `vw` units or heavy JavaScript DOM measurements (`getBoundingClientRect`) — both of which trigger **Layout Reflows**, the most expensive browser bottleneck.
+
+**The solution:** This application completely bypasses the DOM for layout calculation.
+
+Using `@chenglou/pretext`, the frontend leverages the browser's own hidden Canvas Font Engine as ground truth — measuring textual bounds **in memory**, before a single pixel is painted.
+
+| Technique | Traditional CSS | `@chenglou/pretext` |
+|---|---|---|
+| Layout calculation | DOM reflow (expensive) | In-memory canvas arithmetic |
+| Word-wrap | Unpredictable orphans | Mathematically precise |
+| Animation support | Static, rigid | Line-by-line stagger possible |
+| CLS score | High (shifts after paint) | Zero (calculates before DOM touch) |
+
+---
 
 ## 🛠 Core Tech Stack
 
-- **Framework**: `Next.js 14` (App Router) architected for Server-Side Generation (SSG).
-- **Styling Mechanics**: `TailwindCSS` merged with `lucide-react` and `Shadcn UI` for token-based, collision-free CSS layers.
-- **Data Edge**: Powered by a `Vercel Postgres` serverless instance managed through the `Prisma ORM` type-safe client.
-- **Media Optimization**: `ImageKit.io` handles on-the-fly edge transformations, caching, and Next-Gen format delivery (WebP/AVIF).
-- **Security & Flow**: Heavily integrated `next-auth` routing protects the internal `/admin` payload.
-- **Automated Defenses**: Fortified with industry-standard `Playwright` to execute headless End-To-End (E2E) authorization tests continuously.
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Framework** | Next.js 14 (App Router) | SSR + SSG, edge routing, file-based API |
+| **Database** | Vercel Postgres + Prisma ORM | Type-safe serverless queries |
+| **Media CDN** | ImageKit.io | On-the-fly WebP/AVIF, edge caching |
+| **Typography** | `@chenglou/pretext` | Canvas-computed fluid headline layout |
+| **Auth** | next-auth v4 + Edge Middleware | JWT session, server-side route protection |
+| **Styling** | TailwindCSS + Shadcn UI | Token-based CSS, glassmorphism effects |
+| **Testing** | Playwright E2E | Headless auth boundary tests |
+
+---
+
+## 🏗 Key Architecture Features
+
+### Dynamic CMS — Admin Portal
+A fully dark-mode, secure admin portal accessible at `/admin`:
+- **Section Manager** — add, rename, delete photography sections; the public grid auto-adapts its mosaic layout to match
+- **Photo Upload** — metadata-rich uploads (title, section, tags, event date, featured flag) via ImageKit CDN
+- **Contact Inbox** — view messages from the contact form
+- **Archive System** — deleted sections move photos to archive instead of destroying them
+- **Edge Auth** — NextAuth middleware blocks unauthenticated dashboard requests before the page renders
+
+### Adaptive Portfolio Grid
+The frontend grid uses an **algorithmic layout engine** that reshapes itself based on section count:
+- 1–2 sections → full-width editorial rows
+- 3–4 sections → balanced wide/narrow split
+- 5–6 sections → cinema-scale mosaic (flagship look)
+- 7+ sections → clean uniform 3-column grid
+
+### Glassmorphism Navigation
+The header transitions from fully transparent at the top of the page to a live `backdrop-blur` translucent glass effect as the user scrolls — implemented via a scroll event listener and Tailwind conditional classes.
+
+---
 
 ## 📱 Mobile Architecture
 A custom masonry grid hook intercepts the client window object, dynamically degrading complex grid alignments into a thumb-accessible flow for localized touch targets. Instead of hiding desktop complexity, the layout is mathematically reconstructed per device.
 
 ---
+
 *Developed as a strict display of modern full-stack web capabilities, layout mathematics, and edge computing.*
