@@ -23,6 +23,15 @@ model Photograph {
   tags           String?
 }
 
+model Section {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
 model Testimonial {
   id        String   @id @default(cuid())
   author    String
