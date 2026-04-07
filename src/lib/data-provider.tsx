@@ -23,6 +23,7 @@ export interface Testimonial {
   role: string;
   avatar: string;
   rating: number;
+  sourceUrl?: string;
   createdAt: string;
 }
 

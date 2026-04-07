@@ -1,6 +1,6 @@
 "use client";
 
-import { Star } from "lucide-react";
+import { Star, ExternalLink } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -77,8 +77,15 @@ function TestimonialsSection() {
                     </Avatar>
                     <CardContent className="p-0 flex-grow">
                       <p className="text-base italic text-foreground/70 mb-6">"{t.text}"</p>
-                      <h3 className="font-headline text-xl font-semibold text-foreground">{t.author}</h3>
-                      <p className="text-sm text-muted-foreground">{t.role}</p>
+                      <div className="flex items-center justify-center gap-2">
+                        <h3 className="font-headline text-xl font-semibold text-foreground">{t.author}</h3>
+                        {t.sourceUrl && (
+                          <a href={t.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors" title="Verified Review">
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">{t.role}</p>
                       {t.rating && <div className="mt-4"><StarRating rating={t.rating} /></div>}
                     </CardContent>
                   </Card>

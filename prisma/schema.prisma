@@ -39,6 +39,7 @@ model Testimonial {
   text      String
   avatar    String?
   rating    Int      @default(5)
+  sourceUrl String?
   createdAt DateTime @default(now())
 }
 

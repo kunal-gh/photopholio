@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
         text: body.text,
         avatar: body.avatar,
         rating: typeof body.rating === 'number' ? body.rating : parseInt(body.rating) || 5,
+        sourceUrl: body.sourceUrl || null,
       }
     });
     return NextResponse.json(newTestimonial, { status: 201 });

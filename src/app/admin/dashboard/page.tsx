@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import {
   Camera, Upload, Trash2, LogOut, Image as ImageIcon, Star,
   CheckCircle, XCircle, Calendar, FolderOpen, Plus, Pencil,
-  Check, X, GripVertical, Archive, Mail, MessageSquare
+  Check, X, GripVertical, Archive, Mail, MessageSquare, ExternalLink
 } from "lucide-react";
 import { IKUpload } from "imagekitio-next";
 
@@ -24,7 +24,7 @@ interface Contact {
 }
 interface Testimonial {
   id: string; author: string; role: string; text: string;
-  avatar?: string; rating: number; createdAt: string;
+  avatar?: string; rating: number; sourceUrl?: string; createdAt: string;
 }
 
 type Tab = "gallery" | "sections" | "messages" | "testimonials";
@@ -57,7 +57,7 @@ export default function AdminDashboard() {
   // Testimonials state
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [testimonialsLoading, setTestimonialsLoading] = useState(false);
-  const [testForm, setTestForm] = useState({ author: "", role: "", text: "", avatar: "", rating: 5 });
+  const [testForm, setTestForm] = useState({ author: "", role: "", text: "", avatar: "", rating: 5, sourceUrl: "" });
   const [submittingTest, setSubmittingTest] = useState(false);
 
   // Toast
@@ -160,7 +160,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     setSubmittingTest(true);
     const res = await fetch("/api/testimonials", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(testForm) });
-    if (res.ok) { showToast("Testimonial added!", "success"); setTestForm({ author: "", role: "", text: "", avatar: "", rating: 5 }); fetchTestimonials(); }
+    if (res.ok) { showToast("Testimonial added!", "success"); setTestForm({ author: "", role: "", text: "", avatar: "", rating: 5, sourceUrl: "" }); fetchTestimonials(); }
     else showToast("Failed to add testimonial.", "error");
     setSubmittingTest(false);
   };
@@ -406,6 +406,7 @@ export default function AdminDashboard() {
                 <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Role / Title *</label><input required value={testForm.role} onChange={e => setTestForm(f => ({ ...f, role: e.target.value }))} placeholder="Wedding Client" className={inputCls} /></div>
                 <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Testimonial *</label><textarea required value={testForm.text} onChange={e => setTestForm(f => ({ ...f, text: e.target.value }))} placeholder="The photographs were stunning..." rows={3} className={`${inputCls} resize-none`} /></div>
                 <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Avatar URL</label><input value={testForm.avatar} onChange={e => setTestForm(f => ({ ...f, avatar: e.target.value }))} placeholder="https://i.pravatar.cc/150?img=1" className={inputCls} /></div>
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Source URL (Optional)</label><input value={testForm.sourceUrl} onChange={e => setTestForm(f => ({ ...f, sourceUrl: e.target.value }))} placeholder="e.g. Google Review Link" className={inputCls} /></div>
                 <div>
                   <label className="block text-xs text-white/40 mb-2 uppercase tracking-wider">Rating</label>
                   <div className="flex gap-1">
@@ -437,7 +438,14 @@ export default function AdminDashboard() {
                     {t.avatar && <img src={t.avatar} alt={t.author} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />}
                     {!t.avatar && <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold flex-shrink-0">{t.author[0]}</div>}
                     <div className="flex-grow">
-                      <p className="text-sm font-semibold">{t.author}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold">{t.author}</p>
+                        {t.sourceUrl && (
+                          <a href={t.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" title="View Source">
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                      </div>
                       <p className="text-xs text-white/40">{t.role}</p>
                       <p className="text-sm text-white/70 mt-1.5 italic">"{t.text}"</p>
                       <div className="flex items-center gap-0.5 mt-2">
