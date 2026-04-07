@@ -10,14 +10,15 @@ import { cn } from '@/lib/utils';
 export function ClientLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
+  const isAdminPage = pathname?.startsWith('/admin') ?? false;
 
   return (
     <>
-      <Header />
-      <main className={cn("flex-grow", !isHomePage && "pt-14")}>
+      {!isAdminPage && <Header />}
+      <main className={cn("flex-grow", !isHomePage && !isAdminPage && "pt-14")}>
         {children}
       </main>
-      <Footer />
+      {!isAdminPage && <Footer />}
       <Toaster />
     </>
   );
