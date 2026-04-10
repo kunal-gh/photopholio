@@ -6,6 +6,7 @@ import { Menu, X, Instagram, Twitter, Facebook } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useSettings } from "@/lib/data-provider";
 
 const navLinks = [
   { href: "/#home", label: "Home" },
@@ -19,6 +20,7 @@ export function Header() {
   const [activeLink, setActiveLink] = useState("/#home");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { data: settings } = useSettings();
   const isClicking = useRef(false);
 
   useEffect(() => {
@@ -104,15 +106,21 @@ export function Header() {
               ))}
           </nav>
           <div className="flex items-center gap-4">
-            <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-              <Twitter className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
-            </Link>
-            <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-              <Facebook className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
-            </Link>
-            <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-              <Instagram className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
-            </Link>
+            {settings?.twitter && (
+              <Link href={settings.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                <Twitter className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
+              </Link>
+            )}
+            {settings?.facebook && (
+              <Link href={settings.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <Facebook className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
+              </Link>
+            )}
+            {settings?.instagram && (
+              <Link href={settings.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <Instagram className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
+              </Link>
+            )}
           </div>
         </div>
 

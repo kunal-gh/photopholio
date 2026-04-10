@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import {
   Camera, Upload, Trash2, LogOut, Image as ImageIcon, Star,
   CheckCircle, XCircle, Calendar, FolderOpen, Plus, Pencil,
-  Check, X, GripVertical, Archive, Mail, MessageSquare, ExternalLink
+  Check, X, GripVertical, Archive, Mail, MessageSquare, ExternalLink, Settings as SettingsIcon, Save
 } from "lucide-react";
 import { IKUpload } from "imagekitio-next";
 
@@ -27,7 +27,7 @@ interface Testimonial {
   avatar?: string; rating: number; sourceUrl?: string; createdAt: string;
 }
 
-type Tab = "gallery" | "sections" | "messages" | "testimonials";
+type Tab = "gallery" | "sections" | "messages" | "testimonials" | "settings";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
@@ -60,6 +60,10 @@ export default function AdminDashboard() {
   const [testForm, setTestForm] = useState({ author: "", role: "", text: "", avatar: "", rating: 5, sourceUrl: "" });
   const [submittingTest, setSubmittingTest] = useState(false);
 
+  // Settings state
+  const [siteSettings, setSiteSettings] = useState({ email: "", phone: "", instagram: "", twitter: "", facebook: "" });
+  const [settingsLoading, setSettingsLoading] = useState(false);
+
   // Toast
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const showToast = (msg: string, type: "success" | "error") => {
@@ -72,6 +76,7 @@ export default function AdminDashboard() {
   useEffect(() => { fetchPhotos(); }, [activeSection]);
   useEffect(() => { if (activeTab === "messages") fetchContacts(); }, [activeTab]);
   useEffect(() => { if (activeTab === "testimonials") fetchTestimonials(); }, [activeTab]);
+  useEffect(() => { if (activeTab === "settings") fetchSiteSettings(); }, [activeTab]);
 
   const fetchSections = async () => {
     const res = await fetch("/api/sections");
@@ -104,6 +109,15 @@ export default function AdminDashboard() {
       setTestimonials(Array.isArray(data) ? data : []);
     } catch { showToast("Failed to load testimonials", "error"); }
     finally { setTestimonialsLoading(false); }
+  };
+  const fetchSiteSettings = async () => {
+    try {
+      const res = await fetch("/api/settings");
+      const data = await res.json();
+      if (data) {
+        setSiteSettings({ email: data.email || "", phone: data.phone || "", instagram: data.instagram || "", twitter: data.twitter || "", facebook: data.facebook || "" });
+      }
+    } catch { showToast("Failed to load settings", "error"); }
   };
 
   const getIKAuth = async () => { const res = await fetch("/api/imagekit/auth"); return res.json(); };
@@ -170,6 +184,14 @@ export default function AdminDashboard() {
     showToast("Testimonial deleted.", "success"); fetchTestimonials();
   };
 
+  const saveSettings = async () => {
+    setSettingsLoading(true);
+    const res = await fetch("/api/settings", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(siteSettings) });
+    if (res.ok) { showToast("Settings saved!", "success"); }
+    else showToast("Failed to save settings.", "error");
+    setSettingsLoading(false);
+  };
+
   if (status === "loading") return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
       <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -186,6 +208,7 @@ export default function AdminDashboard() {
     { key: "sections", icon: <FolderOpen className="w-3.5 h-3.5" />, label: "Sections" },
     { key: "messages", icon: <Mail className="w-3.5 h-3.5" />, label: "Messages", badge: unreadCount },
     { key: "testimonials", icon: <MessageSquare className="w-3.5 h-3.5" />, label: "Reviews" },
+    { key: "settings", icon: <SettingsIcon className="w-3.5 h-3.5" />, label: "Settings" },
   ];
 
   return (
@@ -457,6 +480,46 @@ export default function AdminDashboard() {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── SETTINGS TAB ── */}
+      {activeTab === "settings" && (
+        <div className="max-w-3xl mx-auto px-6 py-8">
+          <div className="flex items-center gap-2 mb-6">
+            <SettingsIcon className="w-5 h-5 text-white/60" />
+            <h2 className="text-lg font-semibold">Contact Details & Social Links</h2>
+          </div>
+          
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-white/80 border-b border-white/10 pb-2">Direct Contact</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Public Email</label><input value={siteSettings.email} onChange={e => setSiteSettings(s => ({ ...s, email: e.target.value }))} placeholder="hello@example.com" className={inputCls} /></div>
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Public Phone</label><input value={siteSettings.phone} onChange={e => setSiteSettings(s => ({ ...s, phone: e.target.value }))} placeholder="+1 234 567 890" className={inputCls} /></div>
+              </div>
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <h3 className="text-sm font-semibold text-white/80 border-b border-white/10 pb-2">Social Hub</h3>
+              <div className="space-y-4 mt-2">
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Instagram URL</label><input value={siteSettings.instagram} onChange={e => setSiteSettings(s => ({ ...s, instagram: e.target.value }))} placeholder="https://instagram.com/yourhandle" className={inputCls} /></div>
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Twitter / X URL</label><input value={siteSettings.twitter} onChange={e => setSiteSettings(s => ({ ...s, twitter: e.target.value }))} placeholder="https://twitter.com/yourhandle" className={inputCls} /></div>
+                <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Facebook URL</label><input value={siteSettings.facebook} onChange={e => setSiteSettings(s => ({ ...s, facebook: e.target.value }))} placeholder="https://facebook.com/yourhandle" className={inputCls} /></div>
+              </div>
+            </div>
+
+            <div className="pt-4 flex justify-end">
+              <button 
+                onClick={saveSettings} 
+                disabled={settingsLoading} 
+                className="flex items-center gap-2 bg-white text-black font-semibold px-6 py-2.5 rounded-xl text-sm hover:bg-white/90 transition-all disabled:opacity-50"
+              >
+                {settingsLoading ? <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : <Save className="w-4 h-4" />} 
+                Save Settings
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -43,6 +43,15 @@ model Testimonial {
   createdAt DateTime @default(now())
 }
 
+model Settings {
+  id        String   @id @default("global")
+  email     String?
+  phone     String?
+  instagram String?
+  twitter   String?
+  facebook  String?
+  updatedAt DateTime @updatedAt
+}
 model Contact {
   id        String   @id @default(cuid())
   name      String

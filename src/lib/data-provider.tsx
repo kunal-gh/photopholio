@@ -27,9 +27,18 @@ export interface Testimonial {
   createdAt: string;
 }
 
+export interface Settings {
+  email?: string;
+  phone?: string;
+  instagram?: string;
+  twitter?: string;
+  facebook?: string;
+}
+
 interface DataContextValue {
   photographs: Photograph[];
   testimonials: Testimonial[];
+  settings: Settings | null;
   isLoading: boolean;
   refreshData: () => Promise<void>;
 }
@@ -39,21 +48,25 @@ const DataContext = createContext<DataContextValue | undefined>(undefined);
 export function DataProvider({ children }: { children: ReactNode }) {
   const [photographs, setPhotographs] = useState<Photograph[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [settings, setSettings] = useState<Settings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const [photosRes, testimonialsRes] = await Promise.all([
+      const [photosRes, testimonialsRes, settingsRes] = await Promise.all([
         fetch('/api/photographs'),
-        fetch('/api/testimonials')
+        fetch('/api/testimonials'),
+        fetch('/api/settings')
       ]);
       
       const photos = await photosRes.json();
       const testimonials = await testimonialsRes.json();
+      const settings = await settingsRes.json();
       
       setPhotographs(photos);
       setTestimonials(testimonials);
+      setSettings(settings);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
@@ -66,7 +79,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <DataContext.Provider value={{ photographs, testimonials, isLoading, refreshData: fetchData }}>
+    <DataContext.Provider value={{ photographs, testimonials, settings, isLoading, refreshData: fetchData }}>
       {children}
     </DataContext.Provider>
   );
@@ -92,4 +105,9 @@ export function usePhotographs(section?: string) {
 export function useTestimonials() {
   const { testimonials, isLoading } = useData();
   return { data: testimonials, isLoading };
+}
+
+export function useSettings() {
+  const { settings, isLoading } = useData();
+  return { data: settings, isLoading };
 }

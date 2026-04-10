@@ -1,12 +1,13 @@
 "use client";
 
-import { Star, ExternalLink } from "lucide-react";
+import { Star, ExternalLink, MapPin, Mail, Phone } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AnimatedHero } from "@/components/home/animated-hero";
 import { PortfolioCard } from "@/components/portfolio/portfolio-card";
-import { usePhotographs, useTestimonials } from "@/lib/data-provider";
+import { usePhotographs, useTestimonials, useSettings } from "@/lib/data-provider";
+import { ContactForm } from "@/components/contact/contact-form";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { PretextHeading } from "@/components/ui/pretext-heading";
 import React, { useMemo, useState, useEffect } from "react";
@@ -175,6 +176,72 @@ export default function Home() {
 
       <Separator className="my-12" />
       <TestimonialsSection />
+
+      <Separator className="my-12" />
+      {/* Contact Section */}
+      <section id="contact" className="py-20 md:py-28 lg:py-32">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">Get in Touch</h2>
+            <p className="mt-6 max-w-lg mx-auto text-lg text-muted-foreground">
+              Let's create something beautiful together. Reach out for bookings, collaborations, or simply to say hello.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+            <div className="space-y-8">
+              <div className="bg-card/30 p-8 rounded-2xl border border-border/50">
+                <h3 className="text-2xl font-headline font-semibold mb-6">Direct Channels</h3>
+                <div className="space-y-6">
+                  {(() => {
+                    const { data: settings } = useSettings();
+                    return (
+                      <>
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <Mail className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">Email</p>
+                            <a href={`mailto:${settings?.email || "hello@example.com"}`} className="text-lg hover:text-primary transition-colors">
+                              {settings?.email || "hello@example.com"}
+                            </a>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <Phone className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">Phone</p>
+                            <a href={`tel:${settings?.phone || "+1234567890"}`} className="text-lg hover:text-primary transition-colors">
+                              {settings?.phone || "Phone number not set"}
+                            </a>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <MapPin className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">Studio</p>
+                      <p className="text-lg">Based in New York City,<br/>Available Worldwide.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-card/10 p-8 rounded-2xl border border-border/50">
+              <h3 className="text-2xl font-headline font-semibold mb-6">Send a Message</h3>
+              <ContactForm />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
