@@ -43,11 +43,23 @@ export function Header() {
       }
     };
 
+    const handleMouseMove = (e: MouseEvent) => {
+      if (e.clientY < 80) {
+        setIsHovered(true);
+      } else {
+        setIsHovered(false);
+      }
+    };
+
     // Initial check
     handleScroll();
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -98,13 +110,7 @@ export function Header() {
 
   return (
     <>
-    <div 
-      className="fixed top-0 z-[60] w-full h-8 bg-transparent" 
-      onMouseEnter={() => setIsHovered(true)} 
-      style={{ pointerEvents: showHeader ? 'none' : 'auto' }}
-    />
     <header 
-      onMouseLeave={() => setIsHovered(false)}
       className={cn(
         "fixed top-0 z-50 w-full transition-all duration-500",
         showHeader 
