@@ -35,7 +35,7 @@ export function Header() {
         const id = link.href.substring(2);
         return id ? document.getElementById(id) : null;
       });
-      const scrollPosition = window.scrollY + 150;
+      const scrollPosition = window.scrollY + 110;
 
       for (const section of sections) {
         if (section && scrollPosition >= section.offsetTop && scrollPosition < section.offsetTop + section.offsetHeight) {
@@ -74,7 +74,7 @@ export function Header() {
       const element = document.getElementById(id);
       if (element) {
         e.preventDefault();
-        const headerOffset = 80; // Absolute pixel offset for the fixed glass header
+        const headerOffset = 100; // Absolute pixel offset for the fixed glass header
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - headerOffset;
         
