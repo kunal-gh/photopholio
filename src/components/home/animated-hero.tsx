@@ -39,8 +39,8 @@ export function AnimatedHero({ images }: AnimatedHeroProps) {
         <div
           key={image.id}
           className={cn(
-            "absolute inset-0 transition-opacity duration-[3500ms] ease-in-out",
-            index === currentIndex ? "opacity-100" : "opacity-0"
+            "absolute inset-0 transition-opacity duration-[2000ms] ease-in-out z-0",
+            index === currentIndex ? "opacity-100 z-10" : "opacity-0 pointer-events-none"
           )}
         >
           <div className="relative w-full h-full shadow-2xl overflow-hidden">
@@ -50,7 +50,8 @@ export function AnimatedHero({ images }: AnimatedHeroProps) {
               fill
               priority={index === 0}
               className={cn(
-                "object-cover"
+                "object-cover transition-all duration-[6000ms] ease-[cubic-bezier(0.25,1,0.5,1)]",
+                index === currentIndex ? "scale-100 blur-[0px]" : "scale-110 blur-[8px]"
               )}
               data-ai-hint={image.imageHint}
             />
