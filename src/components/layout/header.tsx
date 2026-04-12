@@ -50,10 +50,24 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleLinkClick = (href: string) => {
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     setIsMenuOpen(false);
     setActiveLink(href);
     isClicking.current = true;
+    
+    if (href.startsWith('/#')) {
+      const id = href.substring(2);
+      const element = document.getElementById(id);
+      if (element) {
+        e.preventDefault();
+        element.scrollIntoView({ behavior: 'smooth' });
+        // Remove hash from URL if it exists
+        if (window.location.hash) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      }
+    }
+
     setTimeout(() => {
         isClicking.current = false;
     }, 1000); // Reset after 1 second
@@ -73,7 +87,7 @@ export function Header() {
           "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-primary after:transition-transform after:duration-300 after:origin-left",
           isActive ? "after:scale-x-100" : "after:scale-x-0"
         )}
-        onClick={() => handleLinkClick(href)}
+        onClick={(e) => handleLinkClick(e, href)}
       >
         <span>{label}</span>
       </Link>
@@ -90,7 +104,7 @@ export function Header() {
       )}
     >
       <div className="container flex h-14 items-center justify-between px-4 sm:px-4">
-        <Link href="/#home" onClick={() => handleLinkClick('/#home')} className="flex items-baseline gap-2 md:gap-3">
+        <Link href="/#home" onClick={(e) => handleLinkClick(e, '/#home')} className="flex items-baseline gap-2 md:gap-3">
             <span className="font-bold sm:inline-block font-headline text-2xl md:text-4xl tracking-[0.2em]">
                 THE
             </span>
