@@ -31,20 +31,13 @@ Modern web applications suffer from sluggish DOM re-flows, layout shifts (CLS), 
 
 ---
 
-## 🚀 Typography Innovation — `@chenglou/pretext`
+## 🚀 Typography & Cinematic Animations
 
-Traditional responsive typography forces developers to choose between brittle `vw` units or heavy JavaScript DOM measurements (`getBoundingClientRect`) — both of which trigger **Layout Reflows**, the most expensive browser bottleneck.
+Traditional responsive web typography relies on brittle `vw` math or rigid breakpoints.
 
-**The solution:** This application completely bypasses the DOM for layout calculation.
+**The Solution:** This application leverages CSS `text-wrap: balance`, native line-height optics, and programmatic staggered React delays. It achieves mathematically perfect text-wrapping locally on the user's browser, bypassing heavy layout miscalculations.
 
-Using `@chenglou/pretext`, the frontend leverages the browser's own hidden Canvas Font Engine as ground truth — measuring textual bounds **in memory**, before a single pixel is painted.
-
-| Technique | Traditional CSS | `@chenglou/pretext` |
-|---|---|---|
-| Layout calculation | DOM reflow (expensive) | In-memory canvas arithmetic |
-| Word-wrap | Unpredictable orphans | Mathematically precise |
-| Animation support | Static, rigid | Line-by-line stagger possible |
-| CLS score | High (shifts after paint) | Zero (calculates before DOM touch) |
+It pairs this fluid typography with a **Focal-Pull Animation System** on the hero images: an ultra-premium visual transition used by luxury brands to simulate camera-lens depth-of-field movement, un-blurring and scaling the image dynamically as it locks into focus.
 
 ---
 
@@ -55,10 +48,10 @@ Using `@chenglou/pretext`, the frontend leverages the browser's own hidden Canva
 | **Framework** | Next.js 14 (App Router) | SSR + SSG, edge routing, file-based API |
 | **Database** | Vercel Postgres + Prisma ORM | Type-safe serverless queries |
 | **Media CDN** | ImageKit.io | On-the-fly WebP/AVIF, edge caching |
-| **Typography** | `@chenglou/pretext` | Canvas-computed fluid headline layout |
+| **Typography/Animation**| Native CSS + React | `text-wrap: balance` & Focal-pull algorithms |
 | **Auth** | next-auth v4 + Edge Middleware | JWT session, server-side route protection |
 | **Styling** | TailwindCSS + Shadcn UI | Token-based CSS, glassmorphism effects |
-| **Testing** | Playwright E2E | Headless auth boundary tests |
+| **Third-Party APIs**| Google Drive API | Direct OAuth Client-to-ImageKit bulk uploads |
 
 ---
 
@@ -71,6 +64,14 @@ A fully dark-mode, secure admin portal accessible at `/admin`:
 - **Contact Inbox** — view messages from the contact form
 - **Archive System** — deleted sections move photos to archive instead of destroying them
 - **Edge Auth** — NextAuth middleware blocks unauthenticated dashboard requests before the page renders
+
+### Google Drive Cloud Integration
+Within the CMS dashboard, the image ingestion pipeline is fused directly with a custom **Google Drive API Picker**. 
+Instead of downloading gigabytes of photo exports and locally uploading them to the server, admins connect via an OAuth popup and stream multi-megabyte visual assets *directly* from their Google Drive Cloud to the ImageKit CDN.
+
+### Intelligent Navigation Routing
+Single-page anchor navigation (e.g., `#portfolio`) inherently litters UX history states and creates ugly URLs. 
+This application features a sophisticated anchor-intercept wrapper that actively bypasses the restrictive Next.js memory router. It executes smooth programmatic DOM scrolls with custom `y-axis` layout offsets ensuring fixed navigation bars never obscure titles, while completely sanitizing the URL.
 
 ### Adaptive Portfolio Grid
 The frontend grid uses an **algorithmic layout engine** that reshapes itself based on section count:
