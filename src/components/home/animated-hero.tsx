@@ -50,8 +50,7 @@ export function AnimatedHero({ images }: AnimatedHeroProps) {
               fill
               priority={index === 0}
               className={cn(
-                "object-cover transition-transform duration-[6000ms] ease-in-out",
-                index === currentIndex ? "scale-105" : "scale-100"
+                "object-cover"
               )}
               data-ai-hint={image.imageHint}
             />

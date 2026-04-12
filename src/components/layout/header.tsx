@@ -83,10 +83,10 @@ export function Header() {
   return (
     <header 
       className={cn(
-        "fixed top-0 z-50 w-full transition-all duration-300",
+        "fixed top-0 z-50 w-full transition-all duration-500",
         isScrolled 
-          ? "border-b border-border/60 bg-background/80 backdrop-blur-lg shadow-sm" 
-          : "border-transparent bg-transparent py-2"
+          ? "translate-y-0 opacity-100 border-b border-border/60 bg-background/80 backdrop-blur-lg shadow-sm" 
+          : "-translate-y-full opacity-0 pointer-events-none"
       )}
     >
       <div className="container flex h-14 items-center justify-between px-4 sm:px-4">
