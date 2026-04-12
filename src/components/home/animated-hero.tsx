@@ -24,7 +24,7 @@ export function AnimatedHero({ images }: AnimatedHeroProps) {
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 5000); // Change image every 5 seconds
+    }, 6000); // Change image every 6 seconds
 
     return () => clearInterval(interval);
   }, [images.length]);
@@ -39,7 +39,7 @@ export function AnimatedHero({ images }: AnimatedHeroProps) {
         <div
           key={image.id}
           className={cn(
-            "absolute inset-0 transition-opacity duration-[3000ms] ease-in-out",
+            "absolute inset-0 transition-opacity duration-[4000ms] ease-in-out",
             index === currentIndex ? "opacity-100" : "opacity-0"
           )}
         >
