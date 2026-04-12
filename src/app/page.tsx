@@ -179,7 +179,7 @@ export default function Home() {
 
       <Separator className="my-12" />
       {/* Contact Section */}
-      <section id="contact" className="py-20 md:py-28 lg:py-32 scroll-mt-20 min-h-screen flex flex-col justify-center">
+      <section id="contact" className="pt-20 pb-48 md:pt-28 md:pb-64 lg:pt-32 lg:pb-96 scroll-mt-20">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">Get in Touch</h2>

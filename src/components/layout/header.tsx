@@ -74,12 +74,21 @@ export function Header() {
       const element = document.getElementById(id);
       if (element) {
         e.preventDefault();
-        element.scrollIntoView({ behavior: 'smooth' });
+        const headerOffset = 80; // Absolute pixel offset for the fixed glass header
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.scrollY - headerOffset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+        
         // Remove hash from URL if it exists
         if (window.location.hash) {
           window.history.replaceState(null, '', window.location.pathname);
         }
       }
+    }
     }
 
     setTimeout(() => {
