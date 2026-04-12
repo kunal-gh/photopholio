@@ -11,7 +11,6 @@ import { useSettings } from "@/lib/data-provider";
 const navLinks = [
   { href: "/#home", label: "Home" },
   { href: "/#portfolio", label: "Portfolio" },
-  { href: "/#about", label: "About" },
   { href: "/#testimonials", label: "Testimonials" },
   { href: "/#contact", label: "Contact" },
 ];
@@ -20,6 +19,7 @@ export function Header() {
   const [activeLink, setActiveLink] = useState("/#home");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const { data: settings } = useSettings();
   const isClicking = useRef(false);
 
@@ -94,11 +94,20 @@ export function Header() {
     );
   };
 
+  const showHeader = isScrolled || isHovered;
+
   return (
+    <>
+    <div 
+      className="fixed top-0 z-[60] w-full h-8 bg-transparent" 
+      onMouseEnter={() => setIsHovered(true)} 
+      style={{ pointerEvents: showHeader ? 'none' : 'auto' }}
+    />
     <header 
+      onMouseLeave={() => setIsHovered(false)}
       className={cn(
         "fixed top-0 z-50 w-full transition-all duration-500",
-        isScrolled 
+        showHeader 
           ? "translate-y-0 opacity-100 border-b border-border/60 bg-background/80 backdrop-blur-lg shadow-sm" 
           : "-translate-y-full opacity-0 pointer-events-none"
       )}
@@ -155,5 +164,6 @@ export function Header() {
         </div>
       )}
     </header>
+    </>
   );
 }
