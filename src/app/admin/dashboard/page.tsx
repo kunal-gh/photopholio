@@ -5,9 +5,10 @@ import { useEffect, useState, useRef } from "react";
 import {
   Camera, Upload, Trash2, LogOut, Image as ImageIcon, Star,
   CheckCircle, XCircle, Calendar, FolderOpen, Plus, Pencil,
-  Check, X, GripVertical, Archive, Mail, MessageSquare, ExternalLink, Settings as SettingsIcon, Save
+  Check, X, GripVertical, Archive, Mail, MessageSquare, ExternalLink, Settings as SettingsIcon, Save, Cloud
 } from "lucide-react";
 import { IKUpload } from "imagekitio-next";
+import useDrivePicker from "react-google-drive-picker";
 
 interface Photo {
   id: string; title: string; description?: string; section: string;
@@ -39,8 +40,10 @@ export default function AdminDashboard() {
   const [sections, setSections] = useState<Section[]>([]);
   const [activeSection, setActiveSection] = useState("all");
   const [uploading, setUploading] = useState(false);
+  const [uploadSource, setUploadSource] = useState<"local" | "drive">("local");
   const [form, setForm] = useState({ title: "", description: "", section: "", tags: "", eventDate: "", featured: false });
   const ikUploadRef = useRef<any>(null);
+  const [openPicker, authResponse] = useDrivePicker();
 
   // Section editing
   const [newSectionName, setNewSectionName] = useState("");
@@ -130,6 +133,63 @@ export default function AdminDashboard() {
     if (response.ok) { showToast("Photo uploaded!", "success"); setForm(f => ({ ...f, title: "", description: "", tags: "", eventDate: "", featured: false })); fetchPhotos(); fetchSections(); }
     else showToast("Upload failed.", "error");
     setUploading(false);
+  };
+
+  const handleDrivePicker = () => {
+    if (!form.title) return showToast("Enter a title.", "error");
+    if (!form.section) return showToast("Select a section.", "error");
+    if (!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) return showToast("Google API keys missing in .env", "error");
+
+    openPicker({
+      clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+      developerKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY!,
+      viewId: "DOCS",
+      showUploadView: true,
+      showUploadFolders: true,
+      supportDrives: true,
+      multiselect: false,
+      callbackFunction: async (data: any) => {
+        if (data.action === "picked" && data.docs.length > 0) {
+          const file = data.docs[0];
+          setUploading(true);
+          try {
+            // 1. Download file blob using Picker Access Token
+            const dbRes = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, {
+              headers: { Authorization: `Bearer ${data.oauthToken}` }
+            });
+            if (!dbRes.ok) throw new Error("Failed to pull from Google Drive");
+            const blob = await dbRes.blob();
+            
+            // 2. Prepare for ImageKit POST
+            const auth = await getIKAuth();
+            const fd = new FormData();
+            fd.append("file", blob, file.name);
+            fd.append("publicKey", process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || "");
+            fd.append("signature", auth.signature);
+            fd.append("expire", auth.expire.toString());
+            fd.append("token", auth.token);
+            fd.append("fileName", file.name);
+            fd.append("folder", "/studio");
+
+            // 3. Upload to ImageKit REST interface directly
+            const uploadRes = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
+              method: "POST", body: fd,
+            });
+            const ikData = await uploadRes.json();
+            
+            if (ikData.fileId) {
+              await onUploadSuccess(ikData);
+            } else {
+              throw new Error("ImageKit upload failed");
+            }
+          } catch (e) {
+            console.error(e);
+            showToast("Failed to process Drive file.", "error");
+            setUploading(false);
+          }
+        }
+      },
+    });
   };
 
   const deletePhoto = async (id: string) => {
@@ -256,6 +316,10 @@ export default function AdminDashboard() {
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
               <div className="flex items-center gap-2 mb-5"><Upload className="w-4 h-4 text-white/60" /><h2 className="text-sm font-semibold">Upload New Photo</h2></div>
               <div className="space-y-3">
+                <div className="flex bg-white/5 p-1 rounded-lg border border-white/10 w-fit mb-4">
+                   <button onClick={() => setUploadSource("local")} className={`px-4 py-1.5 rounded-md text-xs font-semibold flex items-center gap-2 transition-all ${uploadSource === "local" ? "bg-white text-black" : "text-white/50 hover:text-white"}`}><Upload className="w-3.5 h-3.5" /> Local File</button>
+                   <button onClick={() => setUploadSource("drive")} className={`px-4 py-1.5 rounded-md text-xs font-semibold flex items-center gap-2 transition-all ${uploadSource === "drive" ? "bg-white text-black" : "text-white/50 hover:text-white"}`}><Cloud className="w-3.5 h-3.5" /> Google Drive</button>
+                </div>
                 <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Title *</label><input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Photo title" className={inputCls} /></div>
                 <div>
                   <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Section *</label>
@@ -267,10 +331,19 @@ export default function AdminDashboard() {
                 <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Tags</label><input value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} placeholder="nature, golden-hour, couple" className={inputCls} /></div>
                 <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Event Date</label><input type="date" value={form.eventDate} onChange={e => setForm(f => ({ ...f, eventDate: e.target.value }))} className={`${inputCls} [color-scheme:dark]`} /></div>
                 <label className="flex items-center gap-2.5 cursor-pointer"><input type="checkbox" checked={form.featured} onChange={e => setForm(f => ({ ...f, featured: e.target.checked }))} className="w-4 h-4 accent-white" /><span className="text-sm text-white/60">Mark as Featured</span></label>
-                <div className="hidden"><IKUpload ref={ikUploadRef} fileName={`photo-${Date.now()}`} folder="/studio" useUniqueFileName={true} onSuccess={onUploadSuccess} onError={() => { showToast("Upload error.", "error"); setUploading(false); }} onUploadStart={() => setUploading(true)} authenticator={getIKAuth} /></div>
-                <button onClick={() => { if (!form.title) return showToast("Enter a title.", "error"); if (!form.section) return showToast("Select a section.", "error"); ikUploadRef.current?.click(); }} disabled={uploading} className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-all disabled:opacity-50">
-                  {uploading ? <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Uploading...</> : <><Upload className="w-4 h-4" /> Choose & Upload Photo</>}
-                </button>
+                
+                {uploadSource === "local" ? (
+                  <>
+                    <div className="hidden"><IKUpload ref={ikUploadRef} fileName={`photo-${Date.now()}`} folder="/studio" useUniqueFileName={true} onSuccess={onUploadSuccess} onError={() => { showToast("Upload error.", "error"); setUploading(false); }} onUploadStart={() => setUploading(true)} authenticator={getIKAuth} /></div>
+                    <button onClick={() => { if (!form.title) return showToast("Enter a title.", "error"); if (!form.section) return showToast("Select a section.", "error"); ikUploadRef.current?.click(); }} disabled={uploading} className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-all disabled:opacity-50 mt-2">
+                      {uploading ? <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Uploading...</> : <><Upload className="w-4 h-4" /> Pick & Upload File</>}
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={handleDrivePicker} disabled={uploading} className="w-full flex items-center justify-center gap-2 bg-[#4285F4] text-white font-semibold py-3 rounded-xl text-sm hover:bg-[#4285F4]/90 transition-all disabled:opacity-50 mt-2">
+                    {uploading ? <><div className="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin" /> Processing from Drive...</> : <><Cloud className="w-4 h-4" /> Import from Google Drive</>}
+                  </button>
+                )}
               </div>
             </div>
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-white/40 space-y-1.5">
