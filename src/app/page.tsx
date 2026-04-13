@@ -179,7 +179,7 @@ export default function Home() {
 
       <Separator className="my-12" />
       {/* Contact Section */}
-      <section id="contact" className="pt-48 pb-12 scroll-mt-48">
+      <section id="contact" className="pt-48 pb-20 scroll-mt-48">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">Get in Touch</h2>
@@ -243,10 +243,13 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="pt-24 pb-[60vh] border-t border-border/40 bg-background/50 backdrop-blur-sm">
+      <footer className="pt-32 pb-[85vh] border-t border-border/40 bg-background/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 text-center">
-            <p className="text-sm text-muted-foreground">
-                &copy; {new Date().getFullYear()} Through Hardik's Eye | Premier Photography Portfolio
+            <p className="text-sm text-muted-foreground uppercase tracking-widest opacity-60 mb-4">
+                Premier Photographic Experience
+            </p>
+            <p className="text-xs text-muted-foreground/40">
+                &copy; {new Date().getFullYear()} Through Hardik's Eye | Reserved for Greatness
             </p>
         </div>
       </footer>
