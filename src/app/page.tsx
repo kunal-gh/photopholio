@@ -59,8 +59,8 @@ const StarRating = ({ rating }: { rating: number }) => (
 function TestimonialsSection() {
   const { data: testimonialsFromDB, isLoading } = useTestimonials();
   return (
-    <section id="testimonials" className="pt-32 pb-20 md:pb-28 lg:pb-32 bg-background scroll-mt-48">
-      <div className="container mx-auto px-4">
+    <section className="pt-64 pb-20 md:pb-28 lg:pb-32 bg-background scroll-mt-48">
+      <div id="testimonials" className="container mx-auto px-4">
         <div className="text-center mb-12 md:mb-20">
           <h2 className="font-headline text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">Client Voices</h2>
           <p className="mt-6 max-w-3xl mx-auto text-lg text-muted-foreground">Words from those who have seen through my eye.</p>
@@ -142,8 +142,8 @@ export default function Home() {
       </section>
 
       {/* Portfolio Grid */}
-      <section id="portfolio" className="pt-32 pb-20 md:pb-28 lg:pb-32 scroll-mt-48">
-        <div className="container mx-auto px-4 text-center mb-12 md:mb-16">
+      <section className="pt-64 pb-20 md:pb-28 lg:pb-32 scroll-mt-48">
+        <div id="portfolio" className="container mx-auto px-4 text-center mb-12 md:mb-16">
           <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">My Work</h2>
         </div>
         <div className="container mx-auto px-2">
@@ -179,8 +179,8 @@ export default function Home() {
 
       <Separator className="my-12" />
       {/* Contact Section */}
-      <section id="contact" className="pt-32 pb-[70vh] scroll-mt-48">
-        <div className="container mx-auto px-4 max-w-6xl">
+      <section className="pt-64 pb-24 scroll-mt-48">
+        <div id="contact" className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">Get in Touch</h2>
             <p className="mt-6 max-w-lg mx-auto text-lg text-muted-foreground">
