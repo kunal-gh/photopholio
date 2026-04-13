@@ -42,7 +42,7 @@ export function PortfolioCard({ slug, title, description, coverImage, className,
       {/* Editorial Text Overlays */}
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-white">
         <div className="overflow-hidden mb-2">
-          <span className="block text-[0.65rem] md:text-[0.75rem] font-medium uppercase tracking-[0.4em] translate-y-full group-hover:translate-y-0 transition-transform duration-500 delay-100 ease-out italic">
+          <span className="block text-[0.65rem] md:text-[0.75rem] font-headline font-medium uppercase tracking-[0.4em] translate-y-full group-hover:translate-y-0 transition-transform duration-500 delay-100 ease-out">
             Collection — 00{Math.floor(Math.random() * 9) + 1}
           </span>
         </div>
@@ -69,7 +69,7 @@ export function PortfolioCard({ slug, title, description, coverImage, className,
         </div>
 
         <div className="overflow-hidden mt-6">
-          <p className="text-[0.7rem] md:text-[0.8rem] font-light max-w-[200px] text-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-200 uppercase tracking-widest leading-loose">
+          <p className="font-headline text-[0.7rem] md:text-[0.8rem] font-light max-w-[200px] text-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-200 uppercase tracking-widest leading-loose">
             {description}
           </p>
         </div>
