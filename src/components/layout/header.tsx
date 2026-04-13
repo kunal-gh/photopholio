@@ -35,7 +35,7 @@ export function Header() {
         const id = link.href.substring(2);
         return id ? document.getElementById(id) : null;
       });
-      const scrollPosition = window.scrollY + 110;
+      const scrollPosition = window.scrollY + 130;
 
       for (const section of sections) {
         if (section && scrollPosition >= section.offsetTop && scrollPosition < section.offsetTop + section.offsetHeight) {
@@ -74,7 +74,7 @@ export function Header() {
       const id = href.substring(2);
       const element = document.getElementById(id);
       if (element) {
-        const headerOffset = 150; // Luxury-grade offset for header clearance
+        const headerOffset = 120; // Final precise offset
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - headerOffset;
 
