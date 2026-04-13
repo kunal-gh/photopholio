@@ -8,7 +8,7 @@ interface Props {
   className?: string;
 }
 
-export function PretextHeading({ text, font = "80px var(--font-headline)", className }: Props) {
+export function PretextHeading({ text, font = "clamp(3rem, 10vw, 8rem)", className }: Props) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -22,10 +22,11 @@ export function PretextHeading({ text, font = "80px var(--font-headline)", class
     <h1 
       className={className} 
       style={{ 
-        font: font, 
+        fontSize: font,
+        fontFamily: '"Playfair Display", serif',
         textWrap: "balance", 
         textAlign: "center",
-        lineHeight: 1.15
+        lineHeight: 1.05
       }}
     >
       {words.map((word, i) => (

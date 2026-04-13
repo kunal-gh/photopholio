@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { usePhotographs } from '@/lib/data-provider';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PretextHeading } from '@/components/ui/pretext-heading';
 
 const categoryDescriptions: Record<string, string> = {
     weddings: "Capturing the love, joy, and candid moments that make your wedding day unforgettable. From the grand ceremony to the intimate details, we tell your unique love story.",
@@ -49,7 +50,10 @@ export default function PortfolioCategoryPage({ params }: { params: { slug: stri
                 </Button>
             </div>
             <div className="mb-12 pt-4 text-center">
-                <h1 className="font-headline text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">{categoryTitle}</h1>
+                <PretextHeading 
+                    text={categoryTitle} 
+                    className="font-bold tracking-tighter uppercase"
+                />
                 <p className="mt-6 max-w-3xl mx-auto text-lg text-muted-foreground">
                     {categoryDescriptions[slug] || "A collection of our finest work."}
                 </p>

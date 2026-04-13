@@ -12,6 +12,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { PretextHeading } from "@/components/ui/pretext-heading";
 import React, { useMemo, useState, useEffect } from "react";
 import { useIsMobile } from "@/lib/hooks";
+import { getEditorialGridSpan } from "@/lib/grid-utils";
 
 interface Section {
   id: string;
@@ -20,32 +21,6 @@ interface Section {
   description?: string;
   order: number;
   photoCount?: number;
-}
-
-// Adaptive grid class based on total section count
-function getSectionGridClass(index: number, total: number): string {
-  if (total <= 2) return "md:col-span-10 md:row-span-2";
-  if (total <= 4) {
-    const patterns = [
-      "md:col-span-6 md:row-span-2",
-      "md:col-span-4 md:row-span-2",
-      "md:col-span-4 md:row-span-2",
-      "md:col-span-6 md:row-span-2",
-    ];
-    return patterns[index % 4] ?? "md:col-span-5 md:row-span-2";
-  }
-  if (total <= 6) {
-    const patterns = [
-      "md:col-span-10 md:row-span-2",
-      "md:col-span-4 md:row-span-2",
-      "md:col-span-6 md:row-span-2",
-      "md:col-span-7",
-      "md:col-span-3",
-      "md:col-span-10 md:row-span-2",
-    ];
-    return patterns[index] ?? "md:col-span-5";
-  }
-  return ""; // 7+ uses 3-col grid, no extra class needed
 }
 
 const StarRating = ({ rating }: { rating: number }) => (
@@ -62,7 +37,10 @@ function TestimonialsSection() {
     <section id="testimonials" className="py-20 md:py-28 lg:py-32 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 md:mb-20">
-          <h2 className="font-headline text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">Client Voices</h2>
+          <PretextHeading 
+            text="Client Voices" 
+            className="font-bold tracking-tighter uppercase"
+          />
           <p className="mt-6 max-w-3xl mx-auto text-lg text-muted-foreground">Words from those who have seen through my eye.</p>
         </div>
         {isLoading && <p className="text-center text-muted-foreground">Loading testimonials...</p>}
@@ -142,21 +120,25 @@ export default function Home() {
       </section>
 
       {/* Portfolio Grid */}
-      <section id="portfolio" className="py-20 md:py-28 lg:py-32">
-        <div className="container mx-auto px-4 text-center mb-12 md:mb-16">
-          <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">My Work</h2>
+      <section id="portfolio" className="py-20 md:py-32 bg-stone-50/30">
+        <div className="container mx-auto px-4 text-center mb-16 md:mb-24">
+          <PretextHeading 
+            text="My Work" 
+            className="font-bold tracking-tighter uppercase"
+          />
+          <div className="w-24 h-[1px] bg-primary/30 mx-auto mt-8 decoration-from-font" />
         </div>
-        <div className="container mx-auto px-2">
+        <div className="container mx-auto px-4 max-w-[1400px]">
           {sections.length === 0 ? (
             <p className="text-center text-muted-foreground py-20">Portfolio coming soon.</p>
           ) : (
-            <div className={`grid grid-cols-1 auto-rows-[20rem] gap-4 ${sections.length >= 7 ? "md:grid-cols-3" : "md:grid-cols-10"}`}>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 auto-rows-[20rem] md:auto-rows-[25rem]">
               {sections.map((section, index) => {
                 const secPhotos = photographs?.filter(
                   p => p.section.toLowerCase() === section.name.toLowerCase()
                 );
                 const cover = secPhotos?.[0] ?? { imageUrl: "https://placehold.co/600x400", description: section.name };
-                const gridClass = sections.length >= 7 ? "" : getSectionGridClass(index, sections.length);
+                const gridClass = getEditorialGridSpan(index);
                 return (
                   <PortfolioCard
                     key={section.id}
@@ -165,7 +147,7 @@ export default function Home() {
                     description={section.description ?? `Explore ${section.name} photography`}
                     coverImage={cover as any}
                     className={gridClass}
-                    sharp={true}
+                    sharp={false}
                   />
                 );
               })}
@@ -182,7 +164,10 @@ export default function Home() {
       <section id="contact" className="pt-32 pb-0">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">Get in Touch</h2>
+            <PretextHeading 
+              text="Get in Touch" 
+              className="font-bold tracking-tighter uppercase"
+            />
             <p className="mt-6 max-w-lg mx-auto text-lg text-muted-foreground">
               Let's create something beautiful together. Reach out for bookings, collaborations, or simply to say hello.
             </p>
