@@ -179,7 +179,7 @@ export default function Home() {
 
       <Separator className="my-12" />
       {/* Contact Section */}
-      <section id="contact" className="pt-12 pb-12">
+      <section id="contact" className="pt-32 pb-0">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">Get in Touch</h2>
@@ -243,7 +243,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="pt-24 min-h-[50vh] border-t border-border/40 bg-background/50 backdrop-blur-sm">
+      <footer className="py-8 border-t border-border/40 bg-background/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 text-center">
             <p className="text-sm text-muted-foreground">
                 &copy; {new Date().getFullYear()} Through Hardik's Eye | Premier Photography Portfolio
