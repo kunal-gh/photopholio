@@ -57,10 +57,10 @@ export function PortfolioCard({ slug, title, description, coverImage, className,
                 key={i} 
                 className="block md:inline-block relative overflow-hidden"
               >
-                <span className="block transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-[150%]">
+                <span className="block transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-[200%]">
                   {word}
                 </span>
-                <span className="absolute top-0 left-0 w-full text-center block transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-[150%] group-hover:translate-y-0 italic font-normal text-white/90">
+                <span className="absolute top-0 left-0 w-full text-center block transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-[200%] group-hover:translate-y-0 text-white/90">
                   {word}
                 </span>
               </span>
