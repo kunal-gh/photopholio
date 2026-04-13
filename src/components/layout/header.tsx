@@ -74,7 +74,7 @@ export function Header() {
       const id = href.substring(2);
       const element = document.getElementById(id);
       if (element) {
-        const headerOffset = 120; // Massive offset for absolute safety
+        const headerOffset = 150; // Luxury-grade offset for header clearance
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - headerOffset;
 
@@ -98,6 +98,29 @@ export function Header() {
     }
   };
 
+
+  const NavLink = ({ href, label }: { href: string; label: string }) => {
+    const isActive = activeLink === href;
+    const isHomePage = pathname === "/";
+
+    if (isHomePage && href.startsWith("/#")) {
+      return (
+        <a
+          href={href}
+          className={cn(
+            "relative py-2 text-sm font-medium transition-colors duration-300",
+            isActive
+              ? "text-primary"
+              : "text-foreground/80 hover:text-foreground",
+            "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-primary after:transition-transform after:duration-300 after:origin-left",
+            isActive ? "after:scale-x-100" : "after:scale-x-0"
+          )}
+          onClick={(e) => handleLinkClick(e, href)}
+        >
+          <span>{label}</span>
+        </a>
+      );
+    }
 
     return (
       <Link
@@ -130,14 +153,33 @@ export function Header() {
       )}
     >
       <div className="container flex h-14 items-center justify-between px-4 sm:px-4">
-        <Link href="/#home" onClick={(e) => handleLinkClick(e, '/#home')} className="flex items-baseline gap-2 md:gap-3">
+        {pathname === "/" ? (
+          <a
+            href="/#home"
+            onClick={(e) => handleLinkClick(e, "/#home")}
+            className="flex items-baseline gap-2 md:gap-3"
+          >
             <span className="font-bold sm:inline-block font-headline text-2xl md:text-4xl tracking-[0.2em]">
-                THE
+              THE
             </span>
             <span className="hidden sm:inline-block text-xs md:text-sm font-body tracking-widest uppercase whitespace-nowrap opacity-80">
-                Through Hardik's Eye
+              Through Hardik's Eye
             </span>
-        </Link>
+          </a>
+        ) : (
+          <Link
+            href="/#home"
+            onClick={(e) => handleLinkClick(e, "/#home")}
+            className="flex items-baseline gap-2 md:gap-3"
+          >
+            <span className="font-bold sm:inline-block font-headline text-2xl md:text-4xl tracking-[0.2em]">
+              THE
+            </span>
+            <span className="hidden sm:inline-block text-xs md:text-sm font-body tracking-widest uppercase whitespace-nowrap opacity-80">
+              Through Hardik's Eye
+            </span>
+          </Link>
+        )}
         
         <div className="hidden md:flex items-center gap-10">
           <nav className="flex items-center gap-6 text-sm">
