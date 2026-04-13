@@ -59,7 +59,7 @@ const StarRating = ({ rating }: { rating: number }) => (
 function TestimonialsSection() {
   const { data: testimonialsFromDB, isLoading } = useTestimonials();
   return (
-    <section id="testimonials" className="pt-32 pb-20 md:pb-28 lg:pb-32 bg-background scroll-mt-12">
+    <section id="testimonials" className="pt-32 pb-20 md:pb-28 lg:pb-32 bg-background scroll-mt-48">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 md:mb-20">
           <h2 className="font-headline text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">Client Voices</h2>
@@ -142,7 +142,7 @@ export default function Home() {
       </section>
 
       {/* Portfolio Grid */}
-      <section id="portfolio" className="pt-32 pb-20 md:pb-28 lg:pb-32 scroll-mt-12">
+      <section id="portfolio" className="pt-32 pb-20 md:pb-28 lg:pb-32 scroll-mt-48">
         <div className="container mx-auto px-4 text-center mb-12 md:mb-16">
           <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">My Work</h2>
         </div>
@@ -179,7 +179,7 @@ export default function Home() {
 
       <Separator className="my-12" />
       {/* Contact Section */}
-      <section id="contact" className="pt-32 pb-48 md:pb-64 lg:pb-96 scroll-mt-20">
+      <section id="contact" className="pt-32 pb-48 md:pb-64 lg:pb-96 scroll-mt-48">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">Get in Touch</h2>

@@ -65,61 +65,40 @@ export function Header() {
   }, []);
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    setIsMenuOpen(false);
-    setActiveLink(href);
-    isClicking.current = true;
-    
-    if (pathname === '/' && href.startsWith('/#')) {
+    if (pathname === "/" && href.startsWith("/#")) {
+      e.preventDefault();
+      setIsMenuOpen(false);
+      setActiveLink(href);
+      isClicking.current = true;
+
       const id = href.substring(2);
       const element = document.getElementById(id);
       if (element) {
-        e.preventDefault();
-        const headerOffset = 100; // Absolute pixel offset for the fixed glass header
+        const headerOffset = 120; // Massive offset for absolute safety
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - headerOffset;
-        
+
         window.scrollTo({
           top: offsetPosition,
-          behavior: "smooth"
+          behavior: "smooth",
         });
-        
+
         // Remove hash from URL if it exists
         if (window.location.hash) {
-          window.history.replaceState(null, '', window.location.pathname);
+          window.history.replaceState(null, "", window.location.pathname);
         }
       }
-    }
-    }
 
-    setTimeout(() => {
+      setTimeout(() => {
         isClicking.current = false;
-    }, 1000); // Reset after 1 second
+      }, 1000);
+    } else {
+      setIsMenuOpen(false);
+      setActiveLink(href);
+    }
   };
 
 
-  const NavLink = ({ href, label }: { href: string; label: string }) => {
-    const isActive = activeLink === href;
-    const isHomePage = pathname === '/';
-    
-    if (isHomePage && href.startsWith('/#')) {
-      return (
-        <a
-          href={href}
-          className={cn(
-            "relative py-2 text-sm font-medium transition-colors duration-300",
-            isActive
-              ? "text-primary"
-              : "text-foreground/80 hover:text-foreground",
-            "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-primary after:transition-transform after:duration-300 after:origin-left",
-            isActive ? "after:scale-x-100" : "after:scale-x-0"
-          )}
-          onClick={(e) => handleLinkClick(e as any, href)}
-        >
-          <span>{label}</span>
-        </a>
-      );
-    }
-    
     return (
       <Link
         href={href}
@@ -131,7 +110,7 @@ export function Header() {
           "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-primary after:transition-transform after:duration-300 after:origin-left",
           isActive ? "after:scale-x-100" : "after:scale-x-0"
         )}
-        onClick={(e) => handleLinkClick(e as any, href)}
+        onClick={(e) => handleLinkClick(e, href)}
       >
         <span>{label}</span>
       </Link>
@@ -151,25 +130,14 @@ export function Header() {
       )}
     >
       <div className="container flex h-14 items-center justify-between px-4 sm:px-4">
-        {pathname === '/' ? (
-          <a href="/#home" onClick={(e) => handleLinkClick(e as any, '/#home')} className="flex items-baseline gap-2 md:gap-3">
-              <span className="font-bold sm:inline-block font-headline text-2xl md:text-4xl tracking-[0.2em]">
-                  THE
-              </span>
-              <span className="hidden sm:inline-block text-xs md:text-sm font-body tracking-widest uppercase whitespace-nowrap opacity-80">
-                  Through Hardik's Eye
-              </span>
-          </a>
-        ) : (
-          <Link href="/#home" onClick={(e) => handleLinkClick(e as any, '/#home')} className="flex items-baseline gap-2 md:gap-3">
-              <span className="font-bold sm:inline-block font-headline text-2xl md:text-4xl tracking-[0.2em]">
-                  THE
-              </span>
-              <span className="hidden sm:inline-block text-xs md:text-sm font-body tracking-widest uppercase whitespace-nowrap opacity-80">
-                  Through Hardik's Eye
-              </span>
-          </Link>
-        )}
+        <Link href="/#home" onClick={(e) => handleLinkClick(e, '/#home')} className="flex items-baseline gap-2 md:gap-3">
+            <span className="font-bold sm:inline-block font-headline text-2xl md:text-4xl tracking-[0.2em]">
+                THE
+            </span>
+            <span className="hidden sm:inline-block text-xs md:text-sm font-body tracking-widest uppercase whitespace-nowrap opacity-80">
+                Through Hardik's Eye
+            </span>
+        </Link>
         
         <div className="hidden md:flex items-center gap-10">
           <nav className="flex items-center gap-6 text-sm">
