@@ -232,9 +232,9 @@ export function Header() {
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             <span className="sr-only">Toggle Menu</span>
           </Button>
-        </div>
       </div>
-      {/* Full-Screen Minimalist Mobile Menu Overlay */}
+    </header>
+    {/* Full-Screen Minimalist Mobile Menu Overlay */}
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 z-[100] bg-background flex flex-col transition-all animate-in fade-in duration-300">
           {/* Top Bar inside overlay */}
@@ -299,7 +299,6 @@ export function Header() {
           </div>
         </div>
       )}
-    </header>
     </>
   );
 }
