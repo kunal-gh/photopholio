@@ -150,6 +150,17 @@ export function Header() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMenuOpen]);
+
   const showHeader = isMobileScreen || isScrolled || isHovered;
 
   return (
@@ -223,13 +234,48 @@ export function Header() {
           </Button>
         </div>
       </div>
+      {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-border/60 bg-background/95 backdrop-blur-sm">
-            <nav className="flex flex-col items-center gap-4 py-6">
-                {navLinks.map((link) => (
-                  <NavLink key={link.href} {...link} />
-                ))}
+        <div className="md:hidden fixed inset-0 top-[56px] left-0 w-full h-[calc(100vh-56px)] z-40 bg-background/98 backdrop-blur-xl transition-all animate-in slide-in-from-top-2 fade-in duration-300">
+          <div className="flex flex-col h-full w-full overflow-y-auto">
+            <nav className="flex flex-col items-center justify-center flex-1 gap-10 py-12">
+              {navLinks.map((link) => {
+                const isActive = activeLink === link.href;
+                return (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    onClick={(e) => handleLinkClick(e, link.href)}
+                    className={cn(
+                      "font-headline text-3xl sm:text-4xl tracking-widest uppercase transition-all duration-300",
+                      isActive 
+                        ? "text-primary scale-110" 
+                        : "text-foreground/60 hover:text-foreground hover:scale-105"
+                    )}
+                  >
+                    {link.label}
+                  </a>
+                );
+              })}
             </nav>
+            <div className="flex items-center justify-center gap-8 pb-12 pt-6 border-t border-border/40 w-2/3 mx-auto">
+              {settings?.twitter && (
+                <Link href={settings.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                  <Twitter className="h-6 w-6 text-foreground/60 hover:text-foreground transition-colors" />
+                </Link>
+              )}
+              {settings?.facebook && (
+                <Link href={settings.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                  <Facebook className="h-6 w-6 text-foreground/60 hover:text-foreground transition-colors" />
+                </Link>
+              )}
+              {settings?.instagram && (
+                <Link href={settings.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                  <Instagram className="h-6 w-6 text-foreground/60 hover:text-foreground transition-colors" />
+                </Link>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </header>
