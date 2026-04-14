@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { createPortal } from 'react-dom';
 import { useState, useEffect, useRef } from "react";
 import { Menu, X, Instagram, Twitter, Facebook } from "lucide-react";
 
@@ -234,11 +235,11 @@ export function Header() {
           </Button>
       </div>
     </header>
-    {/* Full-Screen Minimalist Mobile Menu Overlay */}
-      {isMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-[100] bg-background flex flex-col transition-all animate-in fade-in duration-300">
+    {/* Full-Screen Minimalist Mobile Menu Overlay via Portal */}
+      {isMenuOpen && typeof document !== 'undefined' && createPortal(
+        <div className="md:hidden fixed top-0 left-0 w-screen h-[100dvh] z-[9999] bg-background flex flex-col transition-all animate-in fade-in duration-300">
           {/* Top Bar inside overlay */}
-          <div className="flex justify-between items-center px-4 h-14 w-full">
+          <div className="flex justify-between items-center px-4 h-14 w-full shrink-0">
             <a 
               href="/#contact" 
               onClick={(e) => handleLinkClick(e, "/#contact")} 
@@ -276,7 +277,7 @@ export function Header() {
             </nav>
             
             {/* Social Bottom Line */}
-            <div className="flex items-center justify-between pb-10 px-6 pt-6 w-full">
+            <div className="flex items-center justify-between pb-10 px-6 pt-6 w-full shrink-0">
               <span className="text-xs uppercase tracking-widest opacity-50 font-medium">Follow</span>
               <div className="flex gap-6">
                 {settings?.instagram && (
@@ -297,7 +298,8 @@ export function Header() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
