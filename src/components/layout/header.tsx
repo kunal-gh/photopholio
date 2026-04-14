@@ -234,11 +234,27 @@ export function Header() {
           </Button>
         </div>
       </div>
-      {/* Mobile Menu Overlay */}
+      {/* Full-Screen Minimalist Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-[56px] left-0 w-full h-[calc(100vh-56px)] z-40 bg-background/98 backdrop-blur-xl transition-all animate-in slide-in-from-top-2 fade-in duration-300">
+        <div className="md:hidden fixed inset-0 z-[100] bg-background flex flex-col transition-all animate-in fade-in duration-300">
+          {/* Top Bar inside overlay */}
+          <div className="flex justify-between items-center px-4 h-14 w-full">
+            <a 
+              href="/#contact" 
+              onClick={(e) => handleLinkClick(e, "/#contact")} 
+              className="flex items-center gap-2 font-body font-bold text-xs sm:text-sm tracking-widest uppercase transition-opacity hover:opacity-70"
+            >
+              TOUCH <span className="text-lg leading-none transform translate-y-[-1px]">&rarr;</span> GET IN
+            </a>
+            <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(false)} className="hover:bg-transparent">
+              <X className="h-7 w-7" strokeWidth={1.5} />
+              <span className="sr-only">Close Menu</span>
+            </Button>
+          </div>
+
           <div className="flex flex-col h-full w-full overflow-y-auto">
-            <nav className="flex flex-col items-center justify-center flex-1 gap-10 py-12">
+            {/* Massive Right-Aligned Navigation */}
+            <nav className="flex flex-col items-end justify-center flex-1 w-full px-6 gap-0">
               {navLinks.map((link) => {
                 const isActive = activeLink === link.href;
                 return (
@@ -247,10 +263,10 @@ export function Header() {
                     href={link.href}
                     onClick={(e) => handleLinkClick(e, link.href)}
                     className={cn(
-                      "font-headline text-3xl sm:text-4xl tracking-widest uppercase transition-all duration-300",
+                      "font-body font-black text-[3.5rem] sm:text-7xl leading-[0.9] tracking-tighter uppercase transition-colors duration-300 py-1",
                       isActive 
-                        ? "text-primary scale-110" 
-                        : "text-foreground/60 hover:text-foreground hover:scale-105"
+                        ? "text-primary" 
+                        : "text-foreground hover:text-foreground/70"
                     )}
                   >
                     {link.label}
@@ -258,22 +274,27 @@ export function Header() {
                 );
               })}
             </nav>
-            <div className="flex items-center justify-center gap-8 pb-12 pt-6 border-t border-border/40 w-2/3 mx-auto">
-              {settings?.twitter && (
-                <Link href={settings.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                  <Twitter className="h-6 w-6 text-foreground/60 hover:text-foreground transition-colors" />
-                </Link>
-              )}
-              {settings?.facebook && (
-                <Link href={settings.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                  <Facebook className="h-6 w-6 text-foreground/60 hover:text-foreground transition-colors" />
-                </Link>
-              )}
-              {settings?.instagram && (
-                <Link href={settings.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                  <Instagram className="h-6 w-6 text-foreground/60 hover:text-foreground transition-colors" />
-                </Link>
-              )}
+            
+            {/* Social Bottom Line */}
+            <div className="flex items-center justify-between pb-10 px-6 pt-6 w-full">
+              <span className="text-xs uppercase tracking-widest opacity-50 font-medium">Follow</span>
+              <div className="flex gap-6">
+                {settings?.instagram && (
+                  <Link href={settings.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                    <Instagram className="h-5 w-5 opacity-80 hover:opacity-100 transition-opacity" />
+                  </Link>
+                )}
+                {settings?.twitter && (
+                  <Link href={settings.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                    <Twitter className="h-5 w-5 opacity-80 hover:opacity-100 transition-opacity" />
+                  </Link>
+                )}
+                {settings?.facebook && (
+                  <Link href={settings.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                    <Facebook className="h-5 w-5 opacity-80 hover:opacity-100 transition-opacity" />
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </div>
