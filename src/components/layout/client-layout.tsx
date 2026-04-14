@@ -1,23 +1,90 @@
 'use client';
 
-import { type ReactNode } from 'react';
+import { type ReactNode, useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
-import { Header } from '@/components/layout/header';
+import { Header, navLinks } from '@/components/layout/header';
+import { MobileMenuOverlay } from '@/components/layout/mobile-menu';
 import { Footer } from '@/components/layout/footer';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 
 export function ClientLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const isHomePage = pathname === '/';
   const isAdminPage = pathname?.startsWith('/admin') ?? false;
+  const isHomePage = pathname === '/';
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeLink, setActiveLink] = useState('/#home');
+  const isClicking = useRef(false);
+
+  // Body scroll lock when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isMenuOpen]);
+
+  // Active section tracker
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isClicking.current) return;
+      const scrollPosition = window.scrollY + 130;
+      for (const link of navLinks) {
+        const id = link.href.substring(2);
+        if (!id) continue;
+        const el = document.getElementById(id);
+        if (el && scrollPosition >= el.offsetTop && scrollPosition < el.offsetTop + el.offsetHeight) {
+          setActiveLink(link.href);
+          break;
+        }
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleLinkClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    setIsMenuOpen(false);
+    setActiveLink(href);
+
+    if (pathname === '/' && href.startsWith('/#')) {
+      e.preventDefault();
+      isClicking.current = true;
+      const id = href.substring(2);
+      const el = document.getElementById(id);
+      if (el) {
+        const offset = el.getBoundingClientRect().top + window.scrollY - 120;
+        window.scrollTo({ top: offset, behavior: 'smooth' });
+        if (window.location.hash) window.history.replaceState(null, '', window.location.pathname);
+      }
+      setTimeout(() => { isClicking.current = false; }, 1000);
+    }
+  }, [pathname]);
 
   return (
     <>
-      {!isAdminPage && <Header />}
+      {!isAdminPage && (
+        <Header
+          isMenuOpen={isMenuOpen}
+          onMenuToggle={() => setIsMenuOpen(v => !v)}
+          onLinkClick={handleLinkClick}
+          activeLink={activeLink}
+        />
+      )}
+
+      {/* Mobile full-screen menu — direct sibling, no portal, no containment issues */}
+      {!isAdminPage && (
+        <MobileMenuOverlay
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+          activeLink={activeLink}
+          onLinkClick={handleLinkClick}
+        />
+      )}
+
       <main className={cn("flex-grow", !isHomePage && !isAdminPage && "pt-14")}>
         {children}
       </main>
+
       {!isAdminPage && <Footer />}
       <Toaster />
     </>
