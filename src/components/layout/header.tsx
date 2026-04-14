@@ -238,8 +238,20 @@ export function Header() {
     {/* Full-Screen Minimalist Mobile Menu Overlay via Portal */}
       {isMenuOpen && typeof document !== 'undefined' && createPortal(
         <div 
-          style={{ backgroundColor: 'hsl(40, 33%, 96%)', position: 'fixed', top: 0, left: 0, width: '100vw', height: '100dvh', zIndex: 9999, display: 'flex', flexDirection: 'column' }}
-          className="md:hidden animate-in fade-in duration-300"
+          style={{ 
+            backgroundColor: '#f4f1ec', 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0,
+            bottom: 0,
+            width: '100%', 
+            height: '100%', 
+            zIndex: 9999, 
+            display: 'flex', 
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}
         >          {/* Top Bar inside overlay */}
           <div className="flex justify-between items-center px-4 h-14 w-full shrink-0">
             <a 
