@@ -51,11 +51,28 @@
 }
 
 @layer base {
-  * {
+  *, *::before, *::after {
+    box-sizing: border-box;
     @apply border-border;
   }
+  html {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
   body {
+    overflow-x: hidden;
+    max-width: 100vw;
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 

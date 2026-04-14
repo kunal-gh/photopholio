@@ -140,7 +140,17 @@ export function Header() {
     );
   };
 
-  const showHeader = isScrolled || isHovered;
+  // On mobile (max-width 767px), always show header since hover doesn't exist.
+  // On desktop, show based on scroll or hover position.
+  const [isMobileScreen, setIsMobileScreen] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobileScreen(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const showHeader = isMobileScreen || isScrolled || isHovered;
 
   return (
     <>
@@ -148,21 +158,21 @@ export function Header() {
       className={cn(
         "fixed top-0 z-50 w-full transition-all duration-500",
         showHeader 
-          ? "translate-y-0 opacity-100 border-b border-border/60 bg-background/80 backdrop-blur-lg shadow-sm" 
+          ? "translate-y-0 opacity-100 border-b border-border/60 bg-background shadow-sm" 
           : "-translate-y-full opacity-0 pointer-events-none"
       )}
     >
-      <div className="container flex h-14 items-center justify-between px-4 sm:px-4">
+      <div className="container flex h-14 items-center justify-between px-4 max-w-full">
         {pathname === "/" ? (
           <a
             href="/#home"
             onClick={(e) => handleLinkClick(e, "/#home")}
-            className="flex items-baseline gap-2 md:gap-3"
+            className="flex items-baseline gap-2 shrink-0"
           >
-            <span className="font-bold sm:inline-block font-headline text-2xl md:text-4xl tracking-[0.2em]">
+            <span className="font-bold font-headline text-2xl md:text-3xl tracking-[0.2em]">
               THE
             </span>
-            <span className="hidden sm:inline-block text-xs md:text-sm font-body tracking-widest uppercase whitespace-nowrap opacity-80">
+            <span className="hidden sm:inline-block text-[0.65rem] md:text-xs font-body tracking-widest uppercase whitespace-nowrap opacity-80">
               Through Hardik's Eye
             </span>
           </a>
@@ -170,37 +180,37 @@ export function Header() {
           <Link
             href="/#home"
             onClick={(e) => handleLinkClick(e, "/#home")}
-            className="flex items-baseline gap-2 md:gap-3"
+            className="flex items-baseline gap-2 shrink-0"
           >
-            <span className="font-bold sm:inline-block font-headline text-2xl md:text-4xl tracking-[0.2em]">
+            <span className="font-bold font-headline text-2xl md:text-3xl tracking-[0.2em]">
               THE
             </span>
-            <span className="hidden sm:inline-block text-xs md:text-sm font-body tracking-widest uppercase whitespace-nowrap opacity-80">
+            <span className="hidden sm:inline-block text-[0.65rem] md:text-xs font-body tracking-widest uppercase whitespace-nowrap opacity-80">
               Through Hardik's Eye
             </span>
           </Link>
         )}
         
-        <div className="hidden md:flex items-center gap-10">
+        <div className="hidden md:flex items-center gap-8">
           <nav className="flex items-center gap-6 text-sm">
               {navLinks.map((link) => (
                   <NavLink key={link.href} {...link} />
               ))}
           </nav>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {settings?.twitter && (
               <Link href={settings.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                <Twitter className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
+                <Twitter className="h-4 w-4 opacity-80 transition-opacity hover:opacity-100" />
               </Link>
             )}
             {settings?.facebook && (
               <Link href={settings.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                <Facebook className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
+                <Facebook className="h-4 w-4 opacity-80 transition-opacity hover:opacity-100" />
               </Link>
             )}
             {settings?.instagram && (
               <Link href={settings.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                <Instagram className="h-5 w-5 opacity-80 transition-opacity hover:opacity-100" />
+                <Instagram className="h-4 w-4 opacity-80 transition-opacity hover:opacity-100" />
               </Link>
             )}
           </div>

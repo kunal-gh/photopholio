@@ -281,21 +281,26 @@ export default function AdminDashboard() {
       )}
 
       {/* Header */}
-      <header className="border-b border-white/10 px-6 py-4 flex items-center justify-between backdrop-blur-xl sticky top-0 z-40 bg-[#0a0a0a]/80">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-            <Camera className="w-4 h-4 text-white/80" />
+      <header className="border-b border-white/10 px-4 md:px-6 py-4 flex flex-col lg:flex-row items-center justify-between gap-4 backdrop-blur-xl sticky top-0 z-40 bg-[#0a0a0a]/80">
+        <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+              <Camera className="w-4 h-4 text-white/80" />
+            </div>
+            <div>
+              <h1 className="text-sm font-semibold text-white">Studio Admin</h1>
+              <p className="text-xs text-white/40">Photo Management Portal</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-sm font-semibold text-white">Studio Admin</h1>
-            <p className="text-xs text-white/40">Photo Management Portal</p>
-          </div>
+          <button onClick={() => signOut({ callbackUrl: "/admin/login" })} className="lg:hidden flex items-center gap-2 text-xs text-white/40 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5">
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex bg-white/5 rounded-lg p-1 border border-white/10 gap-0.5">
+        <div className="flex items-center gap-2 w-full lg:w-auto overflow-hidden">
+          <div className="flex bg-white/5 rounded-lg p-1 border border-white/10 gap-0.5 overflow-x-auto w-full hide-scrollbar snap-x">
             {tabs.map(tab => (
               <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-white text-black" : "text-white/50 hover:text-white"}`}>
+                className={`snap-start whitespace-nowrap relative flex items-center gap-1.5 px-3 py-2 md:py-1.5 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-white text-black shadow-sm" : "text-white/50 hover:text-white"}`}>
                 {tab.icon} {tab.label}
                 {tab.badge && tab.badge > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{tab.badge}</span>
@@ -303,7 +308,7 @@ export default function AdminDashboard() {
               </button>
             ))}
           </div>
-          <button onClick={() => signOut({ callbackUrl: "/admin/login" })} className="flex items-center gap-2 text-xs text-white/40 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5">
+          <button onClick={() => signOut({ callbackUrl: "/admin/login" })} className="hidden lg:flex items-center gap-2 text-xs text-white/40 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5">
             <LogOut className="w-3.5 h-3.5" /> Sign Out
           </button>
         </div>

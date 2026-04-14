@@ -3,7 +3,6 @@
 
 import { PortfolioGrid } from '@/components/portfolio/portfolio-grid';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { usePhotographs } from '@/lib/data-provider';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -40,30 +39,43 @@ export default function PortfolioCategoryPage({ params }: { params: { slug: stri
   const { data: images, isLoading } = usePhotographs(slug);
 
   return (
-    <div className="py-12 md:py-16 bg-background animate-in fade-in-25 duration-300">
-        <div className="container mx-auto px-4 relative">
-            <div className="absolute top-0 left-4 z-10">
-                <Button asChild variant="outline" size="lg" className="rounded-full w-14 h-14 p-0">
-                    <Link href="/#portfolio" aria-label="Back to All Portfolios">
-                        <ArrowLeft className="h-6 w-6" />
-                    </Link>
-                </Button>
-            </div>
-            <div className="mb-12 pt-4 text-center">
-                <PretextHeading 
-                    text={categoryTitle} 
-                    className="font-bold tracking-tighter uppercase"
-                />
-                <p className="mt-6 max-w-3xl mx-auto text-lg text-muted-foreground">
-                    {categoryDescriptions[slug] || "A collection of our finest work."}
-                </p>
-            </div>
-            
-            {isLoading && <LoadingSkeleton />}
-            {!isLoading && images && images.length > 0 && <PortfolioGrid title="" images={images} />}
-            {!isLoading && (!images || images.length === 0) && <p className="text-center text-muted-foreground">This gallery is empty for now. Check back soon!</p>}
+    <div className="min-h-screen bg-background">
+      {/* Back button — full width bar, always in flow, never absolute */}
+      <div className="w-full pt-16 pb-0 px-4 md:px-8">
+        <Link
+          href="/#portfolio"
+          aria-label="Back to All Portfolios"
+          className="group inline-flex items-center gap-3 py-4 text-muted-foreground hover:text-foreground transition-colors duration-200"
+        >
+          {/* Animated pill */}
+          <span className="relative flex items-center justify-center w-9 h-9 rounded-full border border-border bg-background shadow-sm group-hover:bg-muted group-hover:border-foreground/20 group-hover:-translate-x-1 transition-all duration-300">
+            <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
+          </span>
+          <span className="text-xs font-semibold uppercase tracking-[0.3em] select-none">
+            Back
+          </span>
+        </Link>
+      </div>
 
-        </div>
+      {/* Page heading */}
+      <div className="container mx-auto px-4 text-center py-8 md:py-12">
+        <PretextHeading
+          text={categoryTitle}
+          className="font-bold tracking-tighter uppercase"
+        />
+        <p className="mt-4 md:mt-6 max-w-3xl mx-auto text-base md:text-lg text-muted-foreground px-4">
+          {categoryDescriptions[slug] || "A collection of our finest work."}
+        </p>
+      </div>
+
+      {/* Gallery */}
+      <div className="container mx-auto px-4 pb-16">
+        {isLoading && <LoadingSkeleton />}
+        {!isLoading && images && images.length > 0 && <PortfolioGrid title="" images={images} />}
+        {!isLoading && (!images || images.length === 0) && (
+          <p className="text-center text-muted-foreground py-20">This gallery is empty for now. Check back soon!</p>
+        )}
+      </div>
     </div>
   );
 }
