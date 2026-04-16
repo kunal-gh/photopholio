@@ -42,6 +42,7 @@ export default function AdminDashboard() {
   const [uploading, setUploading] = useState(false);
   const [uploadSource, setUploadSource] = useState<"local" | "drive">("local");
   const [form, setForm] = useState({ title: "", description: "", section: "", tags: "", eventDate: "", featured: false });
+  const [uploadError, setUploadError] = useState("");
   const ikUploadRef = useRef<any>(null);
   const [openPicker, authResponse] = useDrivePicker();
 
@@ -75,7 +76,7 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => { if (status === "unauthenticated") router.push("/admin/login"); }, [status, router]);
-  useEffect(() => { fetchSections(); }, []);
+  useEffect(() => { if (activeTab === "gallery" || activeTab === "sections") fetchSections(); }, [activeTab]);
   useEffect(() => { fetchPhotos(); }, [activeSection]);
   useEffect(() => { if (activeTab === "messages") fetchContacts(); }, [activeTab]);
   useEffect(() => { if (activeTab === "testimonials") fetchTestimonials(); }, [activeTab]);
@@ -142,14 +143,21 @@ export default function AdminDashboard() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: form.title, description: form.description, section: form.section, imageUrl: res.url, imageKitFileId: res.fileId, width: res.width, height: res.height, featured: form.featured, tags: form.tags, eventDate: form.eventDate || null }),
     });
-    if (response.ok) { showToast("Photo uploaded!", "success"); setForm(f => ({ ...f, title: "", description: "", tags: "", eventDate: "", featured: false })); fetchPhotos(); fetchSections(); }
-    else showToast("Upload failed.", "error");
+    if (response.ok) { 
+      showToast("Photo uploaded!", "success"); 
+      setForm(f => ({ ...f, title: "", description: "", tags: "", eventDate: "", featured: false })); 
+      setUploadError("");
+      fetchPhotos(); 
+    } else {
+      showToast("Upload failed.", "error");
+    }
     setUploading(false);
   };
 
   const handleDrivePicker = () => {
-    if (!form.title) return showToast("Enter a title.", "error");
-    if (!form.section) return showToast("Select a section.", "error");
+    if (!form.title) return setUploadError("Please enter a title.");
+    if (!form.section) return setUploadError("Please select a section.");
+    setUploadError("");
     if (!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) return showToast("Google API keys missing in .env", "error");
 
     openPicker({
@@ -308,11 +316,11 @@ export default function AdminDashboard() {
             <LogOut className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex items-center gap-2 w-full lg:w-auto overflow-hidden">
-          <div className="flex bg-white/5 rounded-lg p-1 border border-white/10 gap-0.5 overflow-x-auto w-full hide-scrollbar snap-x">
+        <div className="flex items-center gap-2 w-full lg:w-auto">
+          <div className="flex bg-white/5 rounded-lg p-1.5 border border-white/10 gap-1 overflow-x-auto w-full hide-scrollbar pr-6">
             {tabs.map(tab => (
               <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-                className={`snap-start whitespace-nowrap relative flex items-center gap-1.5 px-3 py-2 md:py-1.5 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-white text-black shadow-sm" : "text-white/50 hover:text-white"}`}>
+                className={`whitespace-nowrap relative flex items-center gap-1.5 px-3 py-2 md:py-1.5 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-white text-black shadow-sm" : "text-white/50 hover:text-white"}`}>
                 {tab.icon} {tab.label}
                 {tab.badge && tab.badge > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{tab.badge}</span>
@@ -347,12 +355,20 @@ export default function AdminDashboard() {
                 <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Description</label><textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional description..." rows={2} className={`${inputCls} resize-none`} /></div>
                 <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Tags</label><input value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} placeholder="nature, golden-hour, couple" className={inputCls} /></div>
                 <div><label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Event Date</label><input type="date" value={form.eventDate} onChange={e => setForm(f => ({ ...f, eventDate: e.target.value }))} className={`${inputCls} [color-scheme:dark]`} /></div>
-                <label className="flex items-center gap-2.5 cursor-pointer"><input type="checkbox" checked={form.featured} onChange={e => setForm(f => ({ ...f, featured: e.target.checked }))} className="w-4 h-4 accent-white" /><span className="text-sm text-white/60">Mark as Featured</span></label>
                 
+                <button type="button" onClick={() => setForm(f => ({ ...f, featured: !f.featured }))} className="flex items-center gap-2.5 cursor-pointer text-left w-fit my-2">
+                  <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${form.featured ? 'bg-white border-white' : 'border-white/30'}`}>
+                    {form.featured && <Check className="w-3 h-3 text-black" />}
+                  </div>
+                  <span className="text-sm text-white/80 select-none">Mark as Featured</span>
+                </button>
+                
+                {uploadError && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-xs font-medium">{uploadError}</div>}
+
                 {uploadSource === "local" ? (
                   <>
                     <div className="hidden"><IKUpload ref={ikUploadRef} fileName={`photo-${Date.now()}`} folder="/studio" useUniqueFileName={true} onSuccess={onUploadSuccess} onError={(err) => { console.error("IK Error:", err); showToast(err?.message || "Upload error.", "error"); setUploading(false); }} onUploadStart={() => setUploading(true)} authenticator={getIKAuth} /></div>
-                    <button onClick={() => { if (!form.title) return showToast("Enter a title.", "error"); if (!form.section) return showToast("Select a section.", "error"); ikUploadRef.current?.click(); }} disabled={uploading} className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-all disabled:opacity-50 mt-2">
+                    <button onClick={() => { if (!form.title) return setUploadError("Please enter a title."); if (!form.section) return setUploadError("Please select a section."); setUploadError(""); ikUploadRef.current?.click(); }} disabled={uploading} className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-all disabled:opacity-50 mt-2">
                       {uploading ? <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Uploading...</> : <><Upload className="w-4 h-4" /> Pick & Upload File</>}
                     </button>
                   </>
