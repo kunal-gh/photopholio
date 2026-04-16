@@ -42,7 +42,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
       </head>
-      <body className={cn('font-body antialiased min-h-screen flex flex-col bg-background text-foreground')}>
+      <body className={cn('font-body antialiased min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden')}>
         <Providers>
           <ImageKitProvider>
             <ClientLayout>{children}</ClientLayout>

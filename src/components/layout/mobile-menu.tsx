@@ -75,7 +75,7 @@ export function MobileMenuOverlay({
                 "transition-colors duration-200",
                 isActive ? "text-foreground" : "text-foreground/70 hover:text-foreground"
               )}
-              style={{ fontSize: "clamp(2.5rem,12vw,5rem)", lineHeight: 0.9, letterSpacing: "-0.02em" }}
+              style={{ fontSize: "clamp(2.5rem,9vw,5rem)", lineHeight: 0.9, letterSpacing: "-0.02em" }}
             >
               {link.label}
             </a>
