@@ -123,7 +123,19 @@ export default function AdminDashboard() {
     } catch { showToast("Failed to load settings", "error"); }
   };
 
-  const getIKAuth = async () => { const res = await fetch("/api/imagekit/auth"); return res.json(); };
+  const getIKAuth = async () => { 
+    try {
+      const res = await fetch("/api/imagekit/auth"); 
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Auth failed (${res.status}): ${errorText}`);
+      }
+      return await res.json(); 
+    } catch (err) {
+      console.error("IK Auth Fetch Error:", err);
+      throw err;
+    }
+  };
 
   const onUploadSuccess = async (res: any) => {
     const response = await fetch("/api/photographs", {
@@ -339,7 +351,7 @@ export default function AdminDashboard() {
                 
                 {uploadSource === "local" ? (
                   <>
-                    <div className="hidden"><IKUpload ref={ikUploadRef} fileName={`photo-${Date.now()}`} folder="/studio" useUniqueFileName={true} onSuccess={onUploadSuccess} onError={() => { showToast("Upload error.", "error"); setUploading(false); }} onUploadStart={() => setUploading(true)} authenticator={getIKAuth} /></div>
+                    <div className="hidden"><IKUpload ref={ikUploadRef} fileName={`photo-${Date.now()}`} folder="/studio" useUniqueFileName={true} onSuccess={onUploadSuccess} onError={(err) => { console.error("IK Error:", err); showToast(err?.message || "Upload error.", "error"); setUploading(false); }} onUploadStart={() => setUploading(true)} authenticator={getIKAuth} /></div>
                     <button onClick={() => { if (!form.title) return showToast("Enter a title.", "error"); if (!form.section) return showToast("Select a section.", "error"); ikUploadRef.current?.click(); }} disabled={uploading} className="w-full flex items-center justify-center gap-2 bg-white text-black font-semibold py-3 rounded-xl text-sm hover:bg-white/90 transition-all disabled:opacity-50 mt-2">
                       {uploading ? <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Uploading...</> : <><Upload className="w-4 h-4" /> Pick & Upload File</>}
                     </button>
