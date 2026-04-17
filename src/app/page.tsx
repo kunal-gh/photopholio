@@ -135,7 +135,8 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 auto-rows-[20rem] md:auto-rows-[25rem]">
               {sections.map((section, index) => {
                 const secPhotos = photographs?.filter(
-                  p => p.section.toLowerCase() === section.name.toLowerCase()
+                  p => p.section.toLowerCase() === section.name.toLowerCase() ||
+                       p.section.toLowerCase().replace(/\s+/g, '-') === section.slug.toLowerCase()
                 );
                 const cover = secPhotos?.[0] ?? { imageUrl: "https://placehold.co/600x400", description: section.name };
                 const gridClass = getEditorialGridSpan(index);

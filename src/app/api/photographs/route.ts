@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const section = searchParams.get("section");
   
   const photos = await prisma.photograph.findMany({
-    where: section ? { section } : undefined,
+    where: section ? { section: { equals: section, mode: 'insensitive' } } : undefined,
     orderBy: { uploadedAt: "desc" },
   });
   return NextResponse.json(photos);

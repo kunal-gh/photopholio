@@ -76,6 +76,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchData();
+    // Poll every 30s so uploads from other devices (mobile) appear on desktop automatically
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -97,7 +100,13 @@ export function useData() {
 export function usePhotographs(section?: string) {
   const { photographs, isLoading } = useData();
   const filtered = section 
-    ? photographs.filter(p => p.section === section)
+    ? photographs.filter(p => {
+        // Normalize: compare by lowercased section name OR slug (e.g. "AI Art" -> "ai-art")
+        const sectionLower = p.section.toLowerCase();
+        const sectionSlug = p.section.toLowerCase().replace(/\s+/g, '-');
+        const searchLower = section.toLowerCase();
+        return sectionLower === searchLower || sectionSlug === searchLower;
+      })
     : photographs;
   return { data: filtered, isLoading };
 }
