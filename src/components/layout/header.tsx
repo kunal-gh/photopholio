@@ -81,16 +81,16 @@ export function Header({ isMenuOpen, onMenuToggle, onLinkClick, activeLink }: He
     >
       <div className="flex h-14 items-center justify-between px-4 w-full max-w-full">
         {pathname === "/" ? (
-          <a href="/#home" onClick={(e) => onLinkClick(e, "/#home")} className="flex items-baseline gap-2 shrink-0">
+          <a href="/#home" onClick={(e) => onLinkClick(e, "/#home")} className="flex flex-col items-start shrink-0 leading-tight">
             <span className="font-bold font-headline text-2xl md:text-3xl tracking-[0.2em]">THE</span>
-            <span className="hidden sm:inline-block text-[0.65rem] md:text-xs font-body tracking-widest uppercase whitespace-nowrap opacity-80">
+            <span className="text-[0.6rem] md:text-xs font-body tracking-widest uppercase whitespace-nowrap opacity-70">
               Through Hardik's Eye
             </span>
           </a>
         ) : (
-          <Link href="/#home" onClick={(e) => onLinkClick(e, "/#home")} className="flex items-baseline gap-2 shrink-0">
+          <Link href="/#home" onClick={(e) => onLinkClick(e, "/#home")} className="flex flex-col items-start shrink-0 leading-tight">
             <span className="font-bold font-headline text-2xl md:text-3xl tracking-[0.2em]">THE</span>
-            <span className="hidden sm:inline-block text-[0.65rem] md:text-xs font-body tracking-widest uppercase whitespace-nowrap opacity-80">
+            <span className="text-[0.6rem] md:text-xs font-body tracking-widest uppercase whitespace-nowrap opacity-70">
               Through Hardik's Eye
             </span>
           </Link>
