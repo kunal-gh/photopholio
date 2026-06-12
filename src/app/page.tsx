@@ -107,12 +107,10 @@ export default function Home() {
             {heroImages.length > 0 && <AnimatedHero images={heroImages as any} />}
           </div>
           <div className="relative z-10 p-4 w-full flex flex-col items-center">
-            <PretextHeading
-              text="Capturing Life's Fleeting Moments"
-              className="font-headline text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tighter text-white/90 drop-shadow-md leading-[1.1] max-w-6xl"
-              font={isMobile ? "48px var(--font-headline)" : "100px var(--font-headline)"}
-            />
-            <p className="mt-6 max-w-2xl mx-auto text-lg sm:text-xl md:text-2xl font-body text-white/80 drop-shadow-sm">
+            <h1 className="font-headline font-medium italic text-white drop-shadow-2xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl leading-tight max-w-4xl mx-auto mb-6 text-center">
+              Capturing Life's Fleeting Moments
+            </h1>
+            <p className="mt-6 max-w-2xl mx-auto text-lg sm:text-xl md:text-3xl font-body text-white/80 drop-shadow-sm">
               Visual stories, captured with soul.
             </p>
           </div>
@@ -138,7 +136,7 @@ export default function Home() {
                   p => p.section.toLowerCase() === section.name.toLowerCase() ||
                        p.section.toLowerCase().replace(/\s+/g, '-') === section.slug.toLowerCase()
                 );
-                const cover = secPhotos?.[0] ?? { imageUrl: "https://placehold.co/600x400", description: section.name };
+                const cover = (secPhotos && secPhotos.length > 0) ? secPhotos[0] : { imageUrl: `https://picsum.photos/seed/${section.slug}/800/600`, description: section.name };
                 const gridClass = getEditorialGridSpan(index);
                 return (
                   <PortfolioCard

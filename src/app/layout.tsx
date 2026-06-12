@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     description: "Visual stories, captured with soul.",
     url: "https://civilisation.ai",
     siteName: "Hardik Studio",
-    images: [{ url: "https://ik.imagekit.io/6b4gumpcc/hero-default.jpg", width: 1200, height: 630 }],
+    images: [{ url: "https://your-domain.vercel.app/default-og-image.jpg", width: 1200, height: 630 }],
     locale: "en_US",
     type: "website",
   },
